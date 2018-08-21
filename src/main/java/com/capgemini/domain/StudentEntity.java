@@ -37,6 +37,7 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
         this.grade = grade;
     }
 
+
     public Long getId() {
         return id;
     }

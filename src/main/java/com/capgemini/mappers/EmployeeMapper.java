@@ -21,6 +21,7 @@ public class EmployeeMapper {
         return new EmployeeTOBuilder().withFirstName(employeeEntity.getFirstName())
                 .withId(employeeEntity.getId())
                 .withLastName(employeeEntity.getLastName())
+                .withPosition(employeeEntity.getPosition())
                 .build();
 
 

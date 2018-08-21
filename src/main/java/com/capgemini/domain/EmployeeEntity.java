@@ -5,6 +5,7 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "EMPLOYEE")
@@ -25,6 +26,17 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
 
     @Column(nullable = false, length = 45)
     private String position;
+
+
+    @ManyToMany
+    @JoinTable(name = "employee_trainer", joinColumns = {@JoinColumn(name = "employee_id")},
+            inverseJoinColumns = {@JoinColumn(name = "trainer_id")})
+    private List<InternalTrainer> trainers;
+
+    @ManyToMany
+    @JoinTable(name = "employee_student", joinColumns = {@JoinColumn(name = "employee_id")},
+            inverseJoinColumns = {@JoinColumn(name = "student_id")})
+    private List<StudentEntity> students;
 
 
     // for hibernate
@@ -51,4 +63,12 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
         return lastName;
     }
 
+    public String getPosition() {
+        return position;
+    }
+
+
+    public List<StudentEntity> getStudents() {
+        return students;
+    }
 }
