@@ -35,6 +35,7 @@ public class TrainerEntity extends AbstractEntity implements Serializable {
     }
     public TrainerEntity(Long id, String firstName, String lastName, String position, String companyName) {
         super();
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;

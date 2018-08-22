@@ -26,8 +26,9 @@ public class TrainingMapper {
                 .withDateTo(trainingEntity.getDateTo())
                 .withAmount(trainingEntity.getAmount())
                 .withKeyWords(trainingEntity.getKeyWords())
-                .withStudents(StudentMapper.map2TOs(trainingEntity.getStudents()))
-                .withTrainers(TrainerMapper.map2TOs(trainingEntity.getTrainers()))
+                .withStudents(StudentMapper.map2Ids(trainingEntity.getStudents()))
+                .withTrainers(TrainerMapper.map2Ids(trainingEntity.getTrainers()))
+                .withVersion(trainingEntity.getVersion())
                 .build();
 
 
@@ -46,7 +47,9 @@ public class TrainingMapper {
                 trainingTO.getDateTo(),
                 trainingTO.getDuration(),
                 trainingTO.getKeyWords(),
-                trainingTO.getAmount());
+                trainingTO.getAmount(),
+                trainingTO.getVersion()
+        );
 
     }
 
@@ -56,4 +59,6 @@ public class TrainingMapper {
         }
         return new LinkedList<>();
     }
+
+
 }

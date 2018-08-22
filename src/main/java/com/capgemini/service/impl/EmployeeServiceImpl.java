@@ -28,21 +28,31 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
 
-
+    @Autowired
+    private TrainerDao trainerDao;
 
 
     @Override
+    public EmployeeTO addEmployee(EmployeeTO employee) {
+        EmployeeEntity employeeEntity = EmployeeMapper.toEntity(employee);
+        employeeEntity = employeeDao.save(employeeEntity);
+        return EmployeeMapper.toTO(employeeEntity);
+    }
+
+    @Override
     @Transactional
-    public EmployeeTO addTrainer(EmployeeTO employee, TrainerTO trainer) {
+    public TrainerTO addTrainer(EmployeeTO employee, TrainerTO trainer) {
         TrainerEntity trainerEntity = TrainerMapper.toEntity(trainer);
+        trainerEntity = trainerDao.save(trainerEntity);
 
         if(trainerEntity.getId() != null) {
             EmployeeEntity employeeEntity = employeeDao.findOne(employee.getId());
             employeeEntity.getTrainers().add(trainerEntity);
-            return EmployeeMapper.toTO(employeeDao.save(employeeEntity));
+            employeeDao.save(employeeEntity);
+            return TrainerMapper.toTO(trainerEntity);
         }
 
-        return employee;
+        return TrainerMapper.toTO(trainerEntity);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,7 +42,8 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
 
     // for hibernate
     public EmployeeEntity() {
-
+        this.trainers = new ArrayList<>();
+        this.students = new ArrayList<>();
     }
 
     public EmployeeEntity(Long id, String firstName, String lastName, String position) {
@@ -49,6 +51,8 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
+        this.trainers = new ArrayList<>();
+        this.students = new ArrayList<>();
     }
 
     public Long getId() {

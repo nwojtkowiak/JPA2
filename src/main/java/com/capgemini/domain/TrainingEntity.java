@@ -43,6 +43,9 @@ public class TrainingEntity extends AbstractEntity{
     @Column(nullable = false)
     private double amount;
 
+    @Version
+    private int version;
+
     @ManyToMany
     @JoinTable(name = "student_training", joinColumns = {@JoinColumn(name = "training_id")},
             inverseJoinColumns = {@JoinColumn(name = "student_id")})
@@ -59,7 +62,8 @@ public class TrainingEntity extends AbstractEntity{
         this.trainers = new ArrayList<>();
     }
 
-    public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo, int duration, List<String> keyWords, double amount) {
+    public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
+                          int duration, List<String> keyWords, double amount, int version) {
 
         this.id = id;
         this.title = title;
@@ -72,6 +76,7 @@ public class TrainingEntity extends AbstractEntity{
         this.amount = amount;
         this.students = new ArrayList<>();
         this.trainers = new ArrayList<>();
+        this.version = version;
     }
 
     public Long getId() {
@@ -117,4 +122,10 @@ public class TrainingEntity extends AbstractEntity{
     public List<TrainerEntity> getTrainers() {
         return trainers;
     }
+
+    public int getVersion() {
+        return version;
+    }
+
+
 }

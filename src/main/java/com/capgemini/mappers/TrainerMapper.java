@@ -21,6 +21,7 @@ public class TrainerMapper {
         return new TrainerTO.TrainerTOBuilder()
                 .withId(trainerEntity.getId())
                 .withFirstName(trainerEntity.getFirstName())
+                .withPosition(trainerEntity.getPosition())
                 .withLastName(trainerEntity.getLastName())
                 .withCompanyName(trainerEntity.getCompanyName())
                 .build();
@@ -38,9 +39,16 @@ public class TrainerMapper {
 
     }
 
-    public static List<Long> map2TOs(List<TrainerEntity> trainerEntities) {
+    public static List<Long> map2Ids(List<TrainerEntity> trainerEntities) {
         if (trainerEntities != null) {
             return trainerEntities.stream().map(TrainerEntity::getId).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+    public static List<TrainerTO> map2TOs(List<TrainerEntity> trainerEntities) {
+        if (trainerEntities != null) {
+            return trainerEntities.stream().map(TrainerMapper::toTO).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }

@@ -7,7 +7,9 @@ import com.capgemini.types.TrainingTO;
 
 public interface EmployeeService {
 
-    EmployeeTO addTrainer(EmployeeTO employee,TrainerTO trainer);
+    EmployeeTO addEmployee(EmployeeTO employee);
+
+    TrainerTO addTrainer(EmployeeTO employee,TrainerTO trainer);
 
     EmployeeTO addStudent(EmployeeTO employee,StudentTO student);
 }

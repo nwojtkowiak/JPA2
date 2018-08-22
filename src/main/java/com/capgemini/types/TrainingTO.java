@@ -3,6 +3,7 @@ package com.capgemini.types;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TrainingTO {
 
@@ -17,10 +18,11 @@ public class TrainingTO {
     private double amount;
     private List<Long> students;
     private List<Long> trainers;
+    private int version;
 
     public TrainingTO(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
                              int duration, List<String> keyWords, double amount,
-                      List<Long> students, List<Long> trainers) {
+                      List<Long> students, List<Long> trainers, int version) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -32,6 +34,7 @@ public class TrainingTO {
         this.amount = amount;
         this.students = students;
         this.trainers = trainers;
+        this.version = version;
     }
 
     public Long getId() {
@@ -70,8 +73,24 @@ public class TrainingTO {
         return amount;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public List<Long> getStudents() {
         return students;
+    }
+
+    public List<Long> getTrainers() {
+        return trainers;
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     public static class TrainingTOBuilder {
@@ -87,6 +106,7 @@ public class TrainingTO {
         private double amount;
         private List<Long> students = new ArrayList<>();
         private List<Long> trainers = new ArrayList<>();
+        private int version;
 
 
 
@@ -96,7 +116,7 @@ public class TrainingTO {
 
 
 
-        public TrainingTOBuilder withId(long id) {
+        public TrainingTOBuilder withId(Long id) {
             this.id = id;
             return this;
 
@@ -152,10 +172,18 @@ public class TrainingTO {
             return this;
         }
 
+        public TrainingTOBuilder withVersion(int version) {
+            this.version = version;
+            return this;
+
+        }
+
+
+
         public TrainingTO build() {
             checkBeforeBuild(title, type, kind, dateFrom, dateTo, duration, keyWords, amount);
             return new TrainingTO(id, title, type, kind, dateFrom, dateTo, duration,
-                                    keyWords, amount, students, trainers);
+                                    keyWords, amount, students, trainers, version);
         }
 
         private void checkBeforeBuild(String title, String type, String kind, Date dateFrom, Date dateTo,
@@ -167,5 +195,26 @@ public class TrainingTO {
             }
 
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrainingTO that = (TrainingTO) o;
+        return version == that.version &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(kind, that.kind) &&
+                Objects.equals(dateFrom, that.dateFrom) &&
+                Objects.equals(dateTo, that.dateTo) &&
+                Objects.equals(amount, that.amount) &&
+                Objects.equals(duration, that.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version, id, title, type, kind, dateFrom, dateTo, amount, duration);
     }
 }

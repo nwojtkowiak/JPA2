@@ -15,8 +15,12 @@ import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
+@Transactional
 public class TrainingServiceImpl implements TrainingService {
 
     @Autowired
@@ -29,10 +33,39 @@ public class TrainingServiceImpl implements TrainingService {
     private StudentDao studentDao;
 
     @Override
+    @Transactional(readOnly = false)
     public TrainingTO addTraining(TrainingTO training) {
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
         return TrainingMapper.toTO(trainingDao.save(trainingEntity));
 
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public TrainingTO updateTraining(TrainingTO training) {
+        TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
+        trainingEntity = trainingDao.save(trainingEntity);
+
+        return TrainingMapper.toTO(trainingEntity);
+
+    }
+
+    @Override
+    public TrainingTO findTraining(long id) {
+        TrainingEntity trainingEntity = trainingDao.findOne(id);
+
+        return TrainingMapper.toTO(trainingEntity);
+    }
+
+    @Override
+    public List<TrainingTO> findTrainings() {
+       return TrainingMapper.map2TOs(trainingDao.findAll() );
+    }
+
+    @Override
+    public List<TrainerTO> findTrainers(TrainingTO training) {
+        TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+        return TrainerMapper.map2TOs(trainingEntity.getTrainers());
     }
 
 

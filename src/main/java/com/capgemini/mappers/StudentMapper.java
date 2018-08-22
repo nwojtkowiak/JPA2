@@ -33,7 +33,7 @@ public class StudentMapper {
 
     }
 
-    public static List<Long> map2TOs(List<StudentEntity> employeeEntities) {
+    public static List<Long> map2Ids(List<StudentEntity> employeeEntities) {
         if (employeeEntities != null) {
             return employeeEntities.stream().map(StudentEntity::getId).collect(Collectors.toList());
         }
