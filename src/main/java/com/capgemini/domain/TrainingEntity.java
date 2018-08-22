@@ -17,7 +17,7 @@ public class TrainingEntity extends AbstractEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String title;
@@ -59,7 +59,7 @@ public class TrainingEntity extends AbstractEntity{
         this.trainers = new ArrayList<>();
     }
 
-    public TrainingEntity(long id, String title, String type, String kind, Date dateFrom, Date dateTo, int duration, List<String> keyWords, double amount) {
+    public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo, int duration, List<String> keyWords, double amount) {
 
         this.id = id;
         this.title = title;
@@ -74,7 +74,7 @@ public class TrainingEntity extends AbstractEntity{
         this.trainers = new ArrayList<>();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

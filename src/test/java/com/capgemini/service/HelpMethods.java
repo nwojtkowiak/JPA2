@@ -36,7 +36,7 @@ public class HelpMethods {
     }
 
     public static TrainingTO createTraining(String title, String type, String kind, int duration,
-                                            String dtFrom, String dtTo, List<String> keys) {
+                                            String dtFrom, String dtTo, List<String> keys, double amount) {
 
         return new TrainingTO.TrainingTOBuilder()
                 .withTitle(title)
@@ -46,6 +46,7 @@ public class HelpMethods {
                 .withDateFrom(dtFrom)
                 .withDateTo(dtTo)
                 .withKeyWords(keys)
+                .withAmount(amount)
                 .build();
     }
 }

@@ -25,6 +25,7 @@ public class TrainingMapper {
                 .withDateFrom(trainingEntity.getDateFrom())
                 .withDateTo(trainingEntity.getDateTo())
                 .withAmount(trainingEntity.getAmount())
+                .withKeyWords(trainingEntity.getKeyWords())
                 .withStudents(StudentMapper.map2TOs(trainingEntity.getStudents()))
                 .withTrainers(TrainerMapper.map2TOs(trainingEntity.getTrainers()))
                 .build();

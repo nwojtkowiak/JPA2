@@ -13,6 +13,8 @@ public class UpdateListener {
     protected void onUpdate(AbstractEntity abstractEntity) {
         Date date = new Date();
         abstractEntity.setUpdatedTime(new Timestamp(date.getTime()));
+       /* Long version = abstractEntity.getVersion() + 1;
+        abstractEntity.setVersion(version);*/
     }
 
 

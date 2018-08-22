@@ -1,6 +1,7 @@
 package com.capgemini.types;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrainingTO {
@@ -84,8 +85,8 @@ public class TrainingTO {
         private int duration;
         private List<String> keyWords;
         private double amount;
-        private List<Long> students;
-        private List<Long> trainers;
+        private List<Long> students = new ArrayList<>();
+        private List<Long> trainers = new ArrayList<>();
 
 
 

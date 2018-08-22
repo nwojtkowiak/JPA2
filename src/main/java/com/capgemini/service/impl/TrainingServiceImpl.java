@@ -14,7 +14,9 @@ import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TrainingServiceImpl implements TrainingService {
 
     @Autowired
