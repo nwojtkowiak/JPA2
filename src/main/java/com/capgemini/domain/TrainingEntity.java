@@ -5,6 +5,7 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,8 +37,8 @@ public class TrainingEntity extends AbstractEntity{
     @Column(nullable = false)
     private int duration;
 
-   /* @Column
-    private List<String> keyWords;*/
+    @ElementCollection
+    private List<String> keyWords;
 
     @Column(nullable = false)
     private double amount;
@@ -50,11 +51,12 @@ public class TrainingEntity extends AbstractEntity{
     @ManyToMany
     @JoinTable(name = "trainer_training", joinColumns = {@JoinColumn(name = "training_id")},
             inverseJoinColumns = {@JoinColumn(name = "trainer_id")})
-    private List<TrainingEntity> trainers;
+    private List<TrainerEntity> trainers;
 
 
     public TrainingEntity() {
-        this.students = new LinkedList<>();
+        this.students = new ArrayList<>();
+        this.trainers = new ArrayList<>();
     }
 
     public TrainingEntity(long id, String title, String type, String kind, Date dateFrom, Date dateTo, int duration, List<String> keyWords, double amount) {
@@ -66,12 +68,53 @@ public class TrainingEntity extends AbstractEntity{
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
         this.duration = duration;
-     //   this.keyWords = keyWords;
+        this.keyWords = keyWords;
         this.amount = amount;
-        this.students = new LinkedList<>();
-        this.trainers = new LinkedList<>();
+        this.students = new ArrayList<>();
+        this.trainers = new ArrayList<>();
     }
 
+    public long getId() {
+        return id;
+    }
 
+    public String getTitle() {
+        return title;
+    }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public String getDateFrom() {
+        return dateFrom.toString();
+    }
+
+    public String getDateTo() {
+        return dateTo.toString();
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public List<String> getKeyWords() {
+        return keyWords;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public List<StudentEntity> getStudents() {
+        return students;
+    }
+
+    public List<TrainerEntity> getTrainers() {
+        return trainers;
+    }
 }

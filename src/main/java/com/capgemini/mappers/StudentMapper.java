@@ -29,7 +29,7 @@ public class StudentMapper {
             return null;
         }
 
-        return new StudentEntity(studentTO.getId(), studentTO.getGrade());
+        return new StudentEntity(studentTO.getId(), studentTO.getFirstName(), studentTO.getLastName(), studentTO.getPosition(), studentTO.getGrade());
 
     }
 

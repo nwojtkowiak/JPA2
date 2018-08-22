@@ -15,9 +15,11 @@ public class TrainingTO {
     private List<String> keyWords;
     private double amount;
     private List<Long> students;
+    private List<Long> trainers;
 
     public TrainingTO(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
-                             int duration, List<String> keyWords, double amount) {
+                             int duration, List<String> keyWords, double amount,
+                      List<Long> students, List<Long> trainers) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -27,6 +29,48 @@ public class TrainingTO {
         this.duration = duration;
         this.keyWords = keyWords;
         this.amount = amount;
+        this.students = students;
+        this.trainers = trainers;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public Date getDateFrom() {
+        return dateFrom;
+    }
+
+    public Date getDateTo() {
+        return dateTo;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public List<String> getKeyWords() {
+        return keyWords;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public List<Long> getStudents() {
+        return students;
     }
 
     public static class TrainingTOBuilder {
@@ -41,6 +85,9 @@ public class TrainingTO {
         private List<String> keyWords;
         private double amount;
         private List<Long> students;
+        private List<Long> trainers;
+
+
 
         public TrainingTOBuilder() {
             super();
@@ -94,9 +141,20 @@ public class TrainingTO {
             return this;
         }
 
+        public TrainingTOBuilder withStudents(List<Long> students) {
+            this.students = students;
+            return this;
+        }
+
+        public TrainingTOBuilder withTrainers(List<Long> trainers) {
+            this.trainers = trainers;
+            return this;
+        }
+
         public TrainingTO build() {
             checkBeforeBuild(title, type, kind, dateFrom, dateTo, duration, keyWords, amount);
-            return new TrainingTO(id, title, type, kind, dateFrom, dateTo, duration, keyWords, amount);
+            return new TrainingTO(id, title, type, kind, dateFrom, dateTo, duration,
+                                    keyWords, amount, students, trainers);
         }
 
         private void checkBeforeBuild(String title, String type, String kind, Date dateFrom, Date dateTo,

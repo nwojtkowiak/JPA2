@@ -36,6 +36,22 @@ public class StudentTO {
         return grade;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
     public static class StudentTOBuilder {
 
         private Long id;

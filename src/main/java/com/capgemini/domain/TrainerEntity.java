@@ -30,11 +30,6 @@ public class TrainerEntity extends AbstractEntity implements Serializable {
     @Column(nullable = true)
     private String companyName;
 
-
-
-
-
-
     public TrainerEntity(){
 
     }
@@ -44,5 +39,25 @@ public class TrainerEntity extends AbstractEntity implements Serializable {
         this.lastName = lastName;
         this.position = position;
         this.companyName = companyName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public String getCompanyName() {
+        return companyName;
     }
 }

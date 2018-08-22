@@ -67,8 +67,11 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
         return position;
     }
 
-
     public List<StudentEntity> getStudents() {
         return students;
+    }
+
+    public List<TrainerEntity> getTrainers() {
+        return trainers;
     }
 }

@@ -22,6 +22,21 @@ public class TrainerTO {
         return id;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
 
     public static class TrainerTOBuilder {
 

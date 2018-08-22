@@ -8,9 +8,7 @@ public interface TrainingService {
 
     TrainingTO addTraining(TrainingTO training);
 
-    void delTraining(TrainingTO training);
+    TrainingTO addTrainerToTraining(TrainingTO training,TrainerTO trainer);
 
-    TrainingTO addTrainer(TrainerTO trainer);
-
-    TrainerTO addStudent(StudentTO student);
+    TrainingTO addStudentToTraining(TrainingTO training, StudentTO student);
 }
