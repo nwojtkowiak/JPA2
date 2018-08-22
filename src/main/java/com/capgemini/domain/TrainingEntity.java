@@ -47,6 +47,11 @@ public class TrainingEntity extends AbstractEntity{
             inverseJoinColumns = {@JoinColumn(name = "student_id")})
     private List<StudentEntity> students;
 
+    @ManyToMany
+    @JoinTable(name = "trainer_training", joinColumns = {@JoinColumn(name = "training_id")},
+            inverseJoinColumns = {@JoinColumn(name = "trainer_id")})
+    private List<TrainingEntity> trainers;
+
 
     public TrainingEntity() {
         this.students = new LinkedList<>();
@@ -64,6 +69,7 @@ public class TrainingEntity extends AbstractEntity{
      //   this.keyWords = keyWords;
         this.amount = amount;
         this.students = new LinkedList<>();
+        this.trainers = new LinkedList<>();
     }
 
 

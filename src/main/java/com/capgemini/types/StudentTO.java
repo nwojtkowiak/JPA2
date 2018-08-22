@@ -5,12 +5,21 @@ public class StudentTO {
     private Long id;
     private Long boss;
     private short grade;
+    private String firstName;
+    private String lastName;
+    private String position;
+    private Long version;
 
     public StudentTO() {
     }
 
-    public StudentTO(Long id, Long boss, short grade) {
+    public StudentTO(Long id,String firstName, String lastName,
+                     String position, Long version, Long boss, short grade) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+        this.version = version;
         this.boss = boss;
         this.grade = grade;
     }
@@ -32,6 +41,10 @@ public class StudentTO {
         private Long id;
         private Long boss;
         private short grade;
+        private String firstName;
+        private String lastName;
+        private String position;
+        private Long version;
 
         public StudentTOBuilder() {
             super();
@@ -52,11 +65,31 @@ public class StudentTO {
             return this;
         }
 
+        public StudentTOBuilder withFirstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public StudentTOBuilder withLastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public StudentTOBuilder withPosition(String position) {
+            this.position = position;
+            return this;
+        }
+
+        public StudentTOBuilder withVersion(Long version) {
+            this.version = version;
+            return this;
+        }
+
 
 
         public StudentTO build() {
             checkBeforeBuild(grade, boss);
-            return new StudentTO(id, boss, grade);
+            return new StudentTO(id, firstName, lastName,  position, version, boss, grade);
         }
 
         private void checkBeforeBuild(Short grade, Long boss) {

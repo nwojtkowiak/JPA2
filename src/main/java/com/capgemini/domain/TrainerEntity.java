@@ -7,11 +7,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-//@Entity
-//@Table(name = "EXTERNAL_TRAINER")
+@Entity
+@Table(name = "TRAINER")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @EntityListeners({UpdateListener.class, InsertListener.class})
-public class ExternalTrainer extends AbstractEntity implements Serializable {
+public class TrainerEntity extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,19 +27,18 @@ public class ExternalTrainer extends AbstractEntity implements Serializable {
     @Column(nullable = false)
     private String position;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String companyName;
 
 
-    @ManyToMany
-    @JoinTable(name = "trainer_training", joinColumns = {@JoinColumn(name = "trainer_id")},
-            inverseJoinColumns = {@JoinColumn(name = "trainings")})
-    private List<TrainingEntity> trainings;
 
-    public ExternalTrainer(){
+
+
+
+    public TrainerEntity(){
 
     }
-    public ExternalTrainer(Long id, String firstName, String lastName, String position, String companyName) {
+    public TrainerEntity(Long id, String firstName, String lastName, String position, String companyName) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;

@@ -15,7 +15,6 @@ public class AbstractEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedTime;
 
-
     @Version
     public long version;
 

@@ -31,7 +31,7 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     @ManyToMany
     @JoinTable(name = "employee_trainer", joinColumns = {@JoinColumn(name = "employee_id")},
             inverseJoinColumns = {@JoinColumn(name = "trainer_id")})
-    private List<InternalTrainer> trainers;
+    private List<TrainerEntity> trainers;
 
     @ManyToMany
     @JoinTable(name = "employee_student", joinColumns = {@JoinColumn(name = "employee_id")},

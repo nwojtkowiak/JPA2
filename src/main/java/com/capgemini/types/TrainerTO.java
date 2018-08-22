@@ -1,82 +1,74 @@
 package com.capgemini.types;
 
-public class EmployeeTO {
+public class TrainerTO {
+
     private Long id;
     private String firstName;
     private String lastName;
     private String position;
-    private Long version;
+    private String companyName;
 
 
-    public EmployeeTO(Long id, String firstName, String lastName,
-                      String position, Long version) {
+    public TrainerTO(Long id, String firstName, String lastName,
+                     String position, String companyName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
-        this.version = version;
+        this.companyName = companyName;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPosition() { return position; }
-
-    public static class EmployeeTOBuilder {
+    public static class TrainerTOBuilder {
 
         private Long id;
         private String firstName;
         private String lastName;
         private String position;
-        private Long version;
+        private String companyName;
 
-        public EmployeeTOBuilder() {
+        public TrainerTOBuilder() {
             super();
         }
 
-        public EmployeeTOBuilder withId(Long id) {
+        public TrainerTOBuilder withId(Long id) {
             this.id = id;
             return this;
         }
 
-        public EmployeeTOBuilder withFirstName(String firstName) {
+        public TrainerTOBuilder withFirstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
 
-        public EmployeeTOBuilder withLastName(String lastName) {
+        public TrainerTOBuilder withLastName(String lastName) {
             this.lastName = lastName;
             return this;
         }
 
-        public EmployeeTOBuilder withPosition(String position) {
+        public TrainerTOBuilder withPosition(String position) {
             this.position = position;
             return this;
         }
 
-        public EmployeeTOBuilder withVersion(Long version) {
-            this.version = version;
+        public TrainerTOBuilder withCompanyName(String companyName) {
+            this.companyName = companyName;
             return this;
         }
 
 
-        public EmployeeTO build() {
+        public TrainerTO build() {
             checkBeforeBuild(firstName, lastName,position);
-            return new EmployeeTO(id, firstName, lastName,  position, version );
+            return new TrainerTO(id, firstName, lastName,  position ,companyName);
         }
 
         private void checkBeforeBuild(String firstName, String lastName, String position) {
             if (firstName == null || lastName == null || position == null) {
-                throw new RuntimeException("Incorrect employee to be created");
+                throw new RuntimeException("Incorrect trainer to be created");
             }
 
         }

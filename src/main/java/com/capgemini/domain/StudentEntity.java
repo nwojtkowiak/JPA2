@@ -21,6 +21,15 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(nullable = false, length = 45)
+    private String firstName;
+
+    @Column(nullable = false, length = 45)
+    private String lastName;
+
+    @Column(nullable = false, length = 45)
+    private String position;
+
     @Column(nullable = false)
     private short grade;
 
@@ -32,8 +41,11 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
     public StudentEntity() {
     }
 
-    public StudentEntity(Long id, short grade) {
+    public StudentEntity(Long id, String firstName, String lastName, String position, short grade) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
         this.grade = grade;
     }
 
