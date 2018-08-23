@@ -17,11 +17,21 @@ public class EmployeeMapper {
             return null;
         }
 
+        Long studentId = null;
+        Long trainerId = null;
+        if(employeeEntity.getStudent() != null){
+            studentId = employeeEntity.getStudent().getId();
+        }
+        if(employeeEntity.getTrainer() != null){
+            trainerId = employeeEntity.getTrainer().getId();
+        }
 
         return new EmployeeTOBuilder().withFirstName(employeeEntity.getFirstName())
                 .withId(employeeEntity.getId())
                 .withLastName(employeeEntity.getLastName())
                 .withPosition(employeeEntity.getPosition())
+                .withStudent(studentId)
+                .withTrener(trainerId)
                 .build();
 
 

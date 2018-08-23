@@ -6,6 +6,8 @@ public class EmployeeTO {
     private String lastName;
     private String position;
     private Long version;
+    private Long student;
+    private Long trener;
 
 
     public EmployeeTO(Long id, String firstName, String lastName,
@@ -31,6 +33,34 @@ public class EmployeeTO {
 
     public String getPosition() { return position; }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public Long getStudent() {
+        return student;
+    }
+
+    public Long getTrener() {
+        return trener;
+    }
+
     public static class EmployeeTOBuilder {
 
         private Long id;
@@ -38,6 +68,8 @@ public class EmployeeTO {
         private String lastName;
         private String position;
         private Long version;
+        private Long student;
+        private Long trener;
 
         public EmployeeTOBuilder() {
             super();
@@ -65,6 +97,16 @@ public class EmployeeTO {
 
         public EmployeeTOBuilder withVersion(Long version) {
             this.version = version;
+            return this;
+        }
+
+        public EmployeeTOBuilder withStudent(Long student) {
+            this.student = student;
+            return this;
+        }
+
+        public EmployeeTOBuilder withTrener(Long trener) {
+            this.trener = trener;
             return this;
         }
 

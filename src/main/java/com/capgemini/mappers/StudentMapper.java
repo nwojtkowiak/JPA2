@@ -14,10 +14,17 @@ public class StudentMapper {
             return null;
         }
 
+        Long bossId = null;
+        if(studentEntity.getBoss() != null){
+            bossId = studentEntity.getBoss().getId();
+        }
 
         return new StudentTO.StudentTOBuilder()
                 .withId(studentEntity.getId())
-                .withBoss(studentEntity.getBoss().getId())
+                .withFirstName(studentEntity.getFirstName())
+                .withLastName(studentEntity.getLastName())
+                .withPosition(studentEntity.getPosition())
+                .withBoss(bossId)
                 .withGrade(studentEntity.getGrade())
                 .build();
 
@@ -39,4 +46,13 @@ public class StudentMapper {
         }
         return new ArrayList<>();
     }
+
+    public static List<StudentTO> map2TOs(List<StudentEntity> studentEntities) {
+        if (studentEntities != null) {
+            return studentEntities.stream().map(StudentMapper::toTO).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
+
 }

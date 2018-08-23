@@ -21,7 +21,6 @@ public class TrainingMapper {
                 .withType(trainingEntity.getType())
                 .withKind(trainingEntity.getKind())
                 .withDuration(trainingEntity.getDuration())
-                .withDuration(trainingEntity.getDuration())
                 .withDateFrom(trainingEntity.getDateFrom())
                 .withDateTo(trainingEntity.getDateTo())
                 .withAmount(trainingEntity.getAmount())
@@ -47,8 +46,7 @@ public class TrainingMapper {
                 trainingTO.getDateTo(),
                 trainingTO.getDuration(),
                 trainingTO.getKeyWords(),
-                trainingTO.getAmount(),
-                trainingTO.getVersion()
+                trainingTO.getAmount()
         );
 
     }

@@ -18,11 +18,11 @@ public class TrainingTO {
     private double amount;
     private List<Long> students;
     private List<Long> trainers;
-    private int version;
+    private long version;
 
     public TrainingTO(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
                              int duration, List<String> keyWords, double amount,
-                      List<Long> students, List<Long> trainers, int version) {
+                      List<Long> students, List<Long> trainers, long version) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -81,6 +81,38 @@ public class TrainingTO {
         this.type = type;
     }
 
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public void setDateFrom(Date dateFrom) {
+        this.dateFrom = dateFrom;
+    }
+
+    public void setDateTo(Date dateTo) {
+        this.dateTo = dateTo;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public void setKeyWords(List<String> keyWords) {
+        this.keyWords = keyWords;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setStudents(List<Long> students) {
+        this.students = students;
+    }
+
+    public void setTrainers(List<Long> trainers) {
+        this.trainers = trainers;
+    }
+
     public List<Long> getStudents() {
         return students;
     }
@@ -89,8 +121,12 @@ public class TrainingTO {
         return trainers;
     }
 
-    public int getVersion() {
+    public long getVersion() {
         return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
     }
 
     public static class TrainingTOBuilder {
@@ -106,7 +142,7 @@ public class TrainingTO {
         private double amount;
         private List<Long> students = new ArrayList<>();
         private List<Long> trainers = new ArrayList<>();
-        private int version;
+        private long version;
 
 
 
@@ -172,7 +208,7 @@ public class TrainingTO {
             return this;
         }
 
-        public TrainingTOBuilder withVersion(int version) {
+        public TrainingTOBuilder withVersion(long version) {
             this.version = version;
             return this;
 

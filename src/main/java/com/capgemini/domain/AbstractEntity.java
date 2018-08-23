@@ -15,9 +15,8 @@ public class AbstractEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedTime;
 
-  /*  @Version
+    @Version
     public Long version;
-    */
 
     public void setCreatedTime(final Timestamp createdTime) {
         this.createdTime = createdTime;
@@ -27,10 +26,10 @@ public class AbstractEntity {
         this.updatedTime = updatedTime;
     }
 
-//    public Long getVersion() {
-//        return this.version;
-//    }
-//
+    public Long getVersion() {
+        return this.version;
+    }
+
 //    public void setVersion(final Long version) {
 //        this.version = version;
 //    }

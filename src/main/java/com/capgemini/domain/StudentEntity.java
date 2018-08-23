@@ -61,4 +61,16 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
     public EmployeeEntity getBoss() {
         return boss;
     }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPosition() {
+        return position;
+    }
 }

@@ -29,21 +29,18 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     private String position;
 
 
-    @ManyToMany
-    @JoinTable(name = "employee_trainer", joinColumns = {@JoinColumn(name = "employee_id")},
-            inverseJoinColumns = {@JoinColumn(name = "trainer_id")})
-    private List<TrainerEntity> trainers;
+    @OneToOne
+    @JoinColumn(name = "trainer_id")
+    private TrainerEntity trainer;
 
-    @ManyToMany
-    @JoinTable(name = "employee_student", joinColumns = {@JoinColumn(name = "employee_id")},
-            inverseJoinColumns = {@JoinColumn(name = "student_id")})
-    private List<StudentEntity> students;
+    @OneToOne
+    @JoinColumn(name = "student_id")
+    private StudentEntity student;
 
 
     // for hibernate
     public EmployeeEntity() {
-        this.trainers = new ArrayList<>();
-        this.students = new ArrayList<>();
+
     }
 
     public EmployeeEntity(Long id, String firstName, String lastName, String position) {
@@ -51,8 +48,7 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
-        this.trainers = new ArrayList<>();
-        this.students = new ArrayList<>();
+
     }
 
     public Long getId() {
@@ -71,11 +67,31 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
         return position;
     }
 
-    public List<StudentEntity> getStudents() {
-        return students;
+    public StudentEntity getStudent() {
+        return student;
     }
 
-    public List<TrainerEntity> getTrainers() {
-        return trainers;
+    public TrainerEntity getTrainer() {
+        return trainer;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public void setTrainer(TrainerEntity trainer) {
+        this.trainer = trainer;
+    }
+
+    public void setStudent(StudentEntity student) {
+        this.student = student;
     }
 }

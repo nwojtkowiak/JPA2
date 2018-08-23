@@ -7,15 +7,18 @@ public class TrainerTO {
     private String lastName;
     private String position;
     private String companyName;
+    private Long version;
 
 
     public TrainerTO(Long id, String firstName, String lastName,
-                     String position, String companyName) {
+                     String position, String companyName,
+                     Long version) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.position = position;
         this.companyName = companyName;
+        this.version = version;
     }
 
     public Long getId() {
@@ -38,6 +41,22 @@ public class TrainerTO {
         return companyName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     public static class TrainerTOBuilder {
 
         private Long id;
@@ -45,6 +64,8 @@ public class TrainerTO {
         private String lastName;
         private String position;
         private String companyName;
+        private Long version;
+
 
         public TrainerTOBuilder() {
             super();
@@ -75,10 +96,15 @@ public class TrainerTO {
             return this;
         }
 
+        public TrainerTOBuilder withVersion(Long version) {
+            this.version = version;
+            return this;
+        }
+
 
         public TrainerTO build() {
             checkBeforeBuild(firstName, lastName,position);
-            return new TrainerTO(id, firstName, lastName,  position ,companyName);
+            return new TrainerTO(id, firstName, lastName,  position ,companyName, version);
         }
 
         private void checkBeforeBuild(String firstName, String lastName, String position) {

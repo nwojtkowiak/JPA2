@@ -43,8 +43,9 @@ public class TrainingEntity extends AbstractEntity{
     @Column(nullable = false)
     private double amount;
 
-    @Version
-    private int version;
+//    @Version
+//    @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
+//    private int version;
 
     @ManyToMany
     @JoinTable(name = "student_training", joinColumns = {@JoinColumn(name = "training_id")},
@@ -63,8 +64,9 @@ public class TrainingEntity extends AbstractEntity{
     }
 
     public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
-                          int duration, List<String> keyWords, double amount, int version) {
+                          int duration, List<String> keyWords, double amount) {
 
+        //super(version);
         this.id = id;
         this.title = title;
         this.type = type;
@@ -76,7 +78,6 @@ public class TrainingEntity extends AbstractEntity{
         this.amount = amount;
         this.students = new ArrayList<>();
         this.trainers = new ArrayList<>();
-        this.version = version;
     }
 
     public Long getId() {
@@ -123,9 +124,44 @@ public class TrainingEntity extends AbstractEntity{
         return trainers;
     }
 
-    public int getVersion() {
-        return version;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public void setDateFrom(Date dateFrom) {
+        this.dateFrom = dateFrom;
+    }
+
+    public void setDateTo(Date dateTo) {
+        this.dateTo = dateTo;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public void setKeyWords(List<String> keyWords) {
+        this.keyWords = keyWords;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setStudents(List<StudentEntity> students) {
+        this.students = students;
+    }
+
+    public void setTrainers(List<TrainerEntity> trainers) {
+        this.trainers = trainers;
+    }
 
 }

@@ -104,12 +104,12 @@ public class StudentTO {
 
 
         public StudentTO build() {
-            checkBeforeBuild(grade, boss);
+            checkBeforeBuild(firstName, lastName, position);
             return new StudentTO(id, firstName, lastName,  position, version, boss, grade);
         }
 
-        private void checkBeforeBuild(Short grade, Long boss) {
-            if (grade == null || boss == null) {
+        private void checkBeforeBuild(String firstName, String lastName, String position) {
+            if (firstName == null || lastName == null || position == null) {
                 throw new RuntimeException("Incorrect student to be created");
             }
 
