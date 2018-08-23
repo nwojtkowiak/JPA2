@@ -19,9 +19,11 @@ import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,17 +46,36 @@ public class TrainingServiceImpl implements TrainingService {
    // @Transactional(readOnly = false)
     public TrainingTO addTraining(TrainingTO training) {
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
+
+        List<StudentEntity> students = new ArrayList<>();
+        for(Long studentId : training.getStudents()){
+            StudentEntity student = studentDao.findOne(studentId);
+            students.add(student);
+        }
+
+        List<TrainerEntity> trainers = new ArrayList<>();
+        for(Long trainerId : training.getTrainers()){
+            TrainerEntity trainer = trainerDao.findOne(trainerId);
+            trainers.add(trainer);
+        }
+
+        trainingEntity.setStudents(students);
+        trainingEntity.setTrainers(trainers);
+
         return TrainingMapper.toTO(trainingDao.save(trainingEntity));
 
     }
 
     @Override
     //@Transactional(readOnly = false)
-    public TrainingTO updateTraining(TrainingTO training) {
+    public TrainingTO updateTraining(TrainingTO training) throws OptimisticLockingFailureException {
         TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
-        trainingEntity = trainingDao.save(trainingEntity);
+        if(training.getVersion() == trainingEntity.getVersion()) {
+            trainingEntity = trainingDao.save(trainingEntity);
+            return TrainingMapper.toTO(trainingEntity);
+        }
 
-        return TrainingMapper.toTO(trainingEntity);
+        throw new OptimisticLockingFailureException("updateTraining");
 
     }
 
@@ -110,6 +131,8 @@ public class TrainingServiceImpl implements TrainingService {
 
         if(studentEntity.getId() != null) {
             TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+            Long sum = trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+
             trainingEntity.getStudents().add(studentEntity);
             if(trainingEntity.getTrainers().size() > 0){
                 if(employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(),trainingEntity.getStudents())){
@@ -122,5 +145,12 @@ public class TrainingServiceImpl implements TrainingService {
         }
 
         return training;
+    }
+
+    @Override
+    public Long sumAllCostForStudent(StudentTO student) {
+        StudentEntity studentEntity = StudentMapper.toEntity(student);
+        return trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+
     }
 }

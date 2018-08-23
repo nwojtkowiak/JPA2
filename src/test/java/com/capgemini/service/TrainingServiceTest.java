@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,7 @@ public class TrainingServiceTest {
     private TrainingTO initTrainingTO;
 
     @Before
-    //@Transactional
+    @Transactional
     public void init(){
 
         List<String> keys = new ArrayList<>();
@@ -74,7 +75,7 @@ public class TrainingServiceTest {
         assertEquals(2,finds.size());
     }
 
-    @Test(expected = OptimisticEntityLockException.class)
+    @Test(expected = OptimisticLockingFailureException.class)
     @Transactional
     public void testshouldReturnOptimisticLocking(){
         //given
@@ -173,6 +174,37 @@ public class TrainingServiceTest {
         assertEquals(2,trainers.size());
         assertEquals(3,students.size());
     }
+
+    @Test
+    @Transactional
+    public void testshouldReturn5000ForStudent1() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("sql");
+        keys.add("oracle");
+
+        TrainingTO trainingTO = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2018-10-01", "2018-10-01", keys, 14000.0);
+        //when
+        TrainingTO secondTraining = trainingService.addTraining(trainingTO);
+        secondTraining = trainingService.addStudentToTraining(secondTraining,studentTO);
+
+        //when
+        Long sum = trainingService.sumAllCostForStudent(studentTO);
+        Long expected = new Long(16000);
+
+        //then
+        assertNotNull(sum);
+        assertEquals(expected, sum);
+    }
+
 
     @Test(expected =  ParticipationInCourseException.class)
     @Transactional
