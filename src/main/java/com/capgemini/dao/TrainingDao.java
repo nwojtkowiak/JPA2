@@ -11,4 +11,6 @@ public interface TrainingDao extends CrudRepository<TrainingEntity, Long> {
      List<TrainingEntity> findAll();
 
      List<TrainerEntity> findTrainersById(long id);
+
+     List<TrainingEntity> findByStudentsContains
 }

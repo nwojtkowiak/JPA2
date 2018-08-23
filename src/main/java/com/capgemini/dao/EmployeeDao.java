@@ -14,4 +14,6 @@ public interface EmployeeDao extends CrudRepository<EmployeeEntity, Long>{
 
     List<EmployeeEntity> findByTrainerInAndStudentIn(List<TrainerEntity> trainers, List<StudentEntity> students);
 
+    EmployeeEntity findByStudent(StudentEntity student);
+
 }

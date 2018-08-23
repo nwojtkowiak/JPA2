@@ -6,6 +6,8 @@ import com.capgemini.dao.TrainerDao;
 import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
+import com.capgemini.exceptions.ProblemWithAddStudent;
+import com.capgemini.exceptions.ProblemWithAddTrener;
 import com.capgemini.mappers.EmployeeMapper;
 import com.capgemini.mappers.StudentMapper;
 import com.capgemini.mappers.TrainerMapper;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,39 +49,69 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    @Transactional
-    public TrainerTO addTrainer(EmployeeTO employee, TrainerTO trainer) {
-        TrainerEntity trainerEntity = TrainerMapper.toEntity(trainer);
+    public TrainerTO addInternalTrainer(EmployeeTO employee) throws ProblemWithAddTrener {
+
+        TrainerEntity trainerEntity = new TrainerEntity(employee.getFirstName(), employee.getLastName(), employee.getPosition());
         trainerEntity = trainerDao.save(trainerEntity);
 
-        if(trainerEntity.getId() != null && trainerEntity.getCompanyName().length() == 0) {
+        if (trainerEntity.getId() != null) {
             EmployeeEntity employeeEntity = employeeDao.findOne(employee.getId());
             employeeEntity.setTrainer(trainerEntity);
             employeeDao.save(employeeEntity);
             return TrainerMapper.toTO(trainerEntity);
         }
 
-        return TrainerMapper.toTO(trainerEntity);
+        throw new ProblemWithAddTrener();
     }
 
     @Override
+    public TrainerTO addExternalTrainer(TrainerTO trainer) throws ProblemWithAddTrener {
+        if(trainer.getCompanyName().length() > 0) {
+            TrainerEntity trainerEntity = TrainerMapper.toEntity(trainer);
+            trainerEntity = trainerDao.save(trainerEntity);
+            return TrainerMapper.toTO(trainerEntity);
+        }
+        throw new ProblemWithAddTrener();
+
+    }
+
+
+    @Override
     @Transactional
-    public StudentTO addStudent(EmployeeTO employee, StudentTO student) {
-        StudentEntity studentEntity = StudentMapper.toEntity(student);
+    public StudentTO addStudent(EmployeeTO employee, int grade, EmployeeTO boss) throws ProblemWithAddStudent {
+
+        EmployeeEntity bossEntity;
+        StudentEntity studentEntity;
+
+        if(boss != null){
+            bossEntity = employeeDao.findOne(boss.getId());
+            studentEntity = new StudentEntity(employee.getFirstName(), employee.getLastName(),
+                    employee.getPosition(), grade, bossEntity);
+        }else {
+            studentEntity = new StudentEntity(employee.getFirstName(), employee.getLastName(),
+                    employee.getPosition(), grade);
+        }
+
         studentEntity = studentDao.save(studentEntity);
 
-        if(studentEntity.getId() != null) {
+        if (studentEntity.getId() != null) {
             EmployeeEntity employeeEntity = employeeDao.findOne(employee.getId());
             employeeEntity.setStudent(studentEntity);
             return StudentMapper.toTO(studentDao.save(studentEntity));
         }
+        throw new ProblemWithAddStudent();
 
-        return student;
     }
 
     @Override
     public EmployeeTO findEmployee(long id) {
         return EmployeeMapper.toTO(employeeDao.findOne(id));
+    }
+
+    @Override
+    public EmployeeEntity findEmployeeByStudent(long student_id) {
+        StudentEntity studentEntity = studentDao.findOne(student_id);
+        return employeeDao.findByStudent(studentEntity);
     }
 
     @Override

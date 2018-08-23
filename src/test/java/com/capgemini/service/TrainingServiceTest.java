@@ -1,6 +1,8 @@
 package com.capgemini.service;
 
 import com.capgemini.exceptions.ParticipationInCourseException;
+import com.capgemini.exceptions.ProblemWithAddStudent;
+import com.capgemini.exceptions.ProblemWithAddTrener;
 import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
@@ -111,12 +113,11 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testshouldReturnSize1Trainer() throws ParticipationInCourseException{
+    public void testshouldReturnSize1Trainer() throws ParticipationInCourseException, ProblemWithAddTrener {
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Testowa", "programmer");
         employeeTO = employeeService.addEmployee(employeeTO);
-        TrainerTO trainerTO = createTrainer("Ania", "Testowa", "programmer", "");
-        trainerTO = employeeService.addTrainer(employeeTO,trainerTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO);
 
         //when
         trainingService.addTrainerToTraining(initTrainingTO,trainerTO);
@@ -131,39 +132,34 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testshouldReturn1TrenerAnd3Students() throws ParticipationInCourseException{
+    public void testshouldReturn1TrenerAnd3Students() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
 
         //given
-        EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
+        EmployeeTO employeeTO1 = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO1 = employeeService.addEmployee(employeeTO1);
 
-
-        TrainerTO trainerTO = createTrainer("Ania", "Testowa1", "programmer", "");
-        trainerTO = employeeService.addTrainer(employeeTO1,trainerTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
         initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO,trainerTO);
 
-        EmployeeTO employeeTO2 = createEmployee("Ania", "Testowa2", "programmer");
+        EmployeeTO employeeTO2 = createEmployee("Ania", "Studentowa", "programmer");
         employeeTO2 = employeeService.addEmployee(employeeTO2);
+        StudentTO studentTO2 = employeeService.addStudent(employeeTO2, 1, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO2);
 
-        StudentTO studentTO2 = createStudent("Ania", "Testowa2", "programmer");
-        studentTO2 = employeeService.addStudent(employeeTO2,studentTO2);
-
-        TrainerTO trainerTO2 = createTrainer("Ania", "Testowa1", "programmer", "");
-        trainerTO2 = employeeService.addTrainer(employeeTO2,trainerTO2);
+        TrainerTO trainerTO2 = createTrainer("Ania", "Treningowa2", "manager", "COMPANY");
+        trainerTO2 = employeeService.addExternalTrainer(trainerTO2);
         initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO,trainerTO2);
 
-        EmployeeTO employeeTO3 = createEmployee("Ania", "Testowa3", "programmer");
+        EmployeeTO employeeTO3 = createEmployee("Ania", "Studentowa3", "programmer");
         employeeTO3 = employeeService.addEmployee(employeeTO3);
 
-        StudentTO studentTO3 = createStudent("Ania", "Testowa3", "programmer");
-        studentTO3 = employeeService.addStudent(employeeTO3, studentTO3);
+        StudentTO studentTO3 = employeeService.addStudent(employeeTO3, 2, employeeTO2);
         initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO3);
 
-        EmployeeTO employeeTO4 = createEmployee("Ania", "Testowa4", "programmer");
+        EmployeeTO employeeTO4 = createEmployee("Ania", "Studentowa4", "programmer");
         employeeTO4 = employeeService.addEmployee(employeeTO4);
 
-        StudentTO studentTO4 = createStudent("Ania", "Testowa4", "programmer");
-        studentTO4 = employeeService.addStudent(employeeTO4, studentTO4);
+        StudentTO studentTO4 = employeeService.addStudent(employeeTO4, 5, employeeTO1);
         initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO4);
 
         //when
@@ -175,23 +171,21 @@ public class TrainingServiceTest {
         assertNotNull(trainers);
         assertNotNull(students);
         assertEquals(2,trainers.size());
-        assertEquals(2,students.size());
+        assertEquals(3,students.size());
     }
 
     @Test(expected =  ParticipationInCourseException.class)
     @Transactional
-    public void testshouldReturnParticipationInCourseExceptionWhenTrainer() throws ParticipationInCourseException{
+    public void testshouldReturnParticipationInCourseExceptionWhenTrainer() throws ParticipationInCourseException, ProblemWithAddStudent, ProblemWithAddTrener {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
         employeeTO1 = employeeService.addEmployee(employeeTO1);
 
-        StudentTO studentTO1 = createStudent("Ania", "Testowa1", "programmer");
-        studentTO1 = employeeService.addStudent(employeeTO1,studentTO1);
+        StudentTO studentTO1 = employeeService.addStudent(employeeTO1, 2, null);
         initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO1);
 
-        TrainerTO trainerTO = createTrainer("Ania", "Testowa1", "programmer", "");
-        trainerTO = employeeService.addTrainer(employeeTO1,trainerTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
         initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO,trainerTO);
 
 
@@ -199,19 +193,19 @@ public class TrainingServiceTest {
 
     @Test(expected =  ParticipationInCourseException.class)
     @Transactional
-    public void testshouldReturnParticipationInCourseExceptionWhenStudent() throws ParticipationInCourseException{
+    public void testshouldReturnParticipationInCourseExceptionWhenStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
         employeeTO1 = employeeService.addEmployee(employeeTO1);
 
-        TrainerTO trainerTO = createTrainer("Ania", "Testowa1", "programmer", "");
-        trainerTO = employeeService.addTrainer(employeeTO1,trainerTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
         initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO,trainerTO);
 
-        StudentTO studentTO1 = createStudent("Ania", "Testowa1", "programmer");
-        studentTO1 = employeeService.addStudent(employeeTO1,studentTO1);
+        StudentTO studentTO1 = employeeService.addStudent(employeeTO1, 2, null);
         initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO1);
+
+
 
     }
 

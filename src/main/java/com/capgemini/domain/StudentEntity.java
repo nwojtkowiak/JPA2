@@ -31,9 +31,10 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
     private String position;
 
     @Column(nullable = false)
-    private short grade;
+    private int grade;
 
-    @Column
+    @OneToOne
+    @JoinColumn(name = "boss_id")
     private EmployeeEntity boss;
 
 
@@ -41,7 +42,7 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
     public StudentEntity() {
     }
 
-    public StudentEntity(Long id, String firstName, String lastName, String position, short grade) {
+    public StudentEntity(String firstName, String lastName, String position, int grade) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -49,12 +50,38 @@ public class StudentEntity extends AbstractEntity  implements Serializable {
         this.grade = grade;
     }
 
+    public StudentEntity(String firstName, String lastName, String position, int grade, EmployeeEntity boss) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+        this.grade = grade;
+        this.boss = boss;
+    }
+
+    public StudentEntity(Long id, String firstName, String lastName, String position, int grade) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+        this.grade = grade;
+    }
+
+    public StudentEntity(Long id, String firstName, String lastName, String position, int grade, EmployeeEntity boss) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.position = position;
+        this.grade = grade;
+        this.boss = boss;
+    }
+
 
     public Long getId() {
         return id;
     }
 
-    public short getGrade() {
+    public int getGrade() {
         return grade;
     }
 

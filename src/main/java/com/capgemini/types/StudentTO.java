@@ -4,7 +4,7 @@ public class StudentTO {
 
     private Long id;
     private Long boss;
-    private short grade;
+    private int grade;
     private String firstName;
     private String lastName;
     private String position;
@@ -14,7 +14,7 @@ public class StudentTO {
     }
 
     public StudentTO(Long id,String firstName, String lastName,
-                     String position, Long version, Long boss, short grade) {
+                     String position, Long version, Long boss, int grade) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -32,7 +32,7 @@ public class StudentTO {
         return boss;
     }
 
-    public short getGrade() {
+    public int getGrade() {
         return grade;
     }
 
@@ -56,7 +56,7 @@ public class StudentTO {
 
         private Long id;
         private Long boss;
-        private short grade;
+        private int grade;
         private String firstName;
         private String lastName;
         private String position;
@@ -76,7 +76,7 @@ public class StudentTO {
             return this;
         }
 
-        public StudentTOBuilder withGrade(short grade) {
+        public StudentTOBuilder withGrade(int grade) {
             this.grade = grade;
             return this;
         }
