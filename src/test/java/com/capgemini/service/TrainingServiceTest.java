@@ -67,44 +67,27 @@ public class TrainingServiceTest {
         //when
         TrainingTO saved = trainingService.addTraining(trainingTO);
         List<TrainingTO> finds = trainingService.findTrainings();
+
         //then
-        Long id = new Long(2);
         assertNotNull(saved);
         assertEquals(2,finds.size());
     }
 
-    @Test//(expected = OptimisticLockingFailureException.class)
-    @Transactional
+    @Test(expected = OptimisticLockingFailureException.class)
+    //@Transactional
     public void testshouldReturnOptimisticLocking(){
         //given
-        //TrainingTO trainingTO = trainingService.findTraining(1);
 
         TrainingTO t1 = trainingService.findTraining(1L);
         TrainingTO t2 = trainingService.findTraining(1L);
-        //EmployeeTO e1 = employeeService.findEmployee(1L);
-        //.setFirstName("Test2");
+
         t1.setTitle("TEST1");
         t2.setTitle("TEST2");
-        //EmployeeTO e2 = employeeService.findEmployee(1L);
-        //e2.setFirstName("Test2");
-
-
 
         // when
-        trainingService.updateTraining(t1);
-        //e1 = employeeService.updateEmployee(e1);
-
+        t1 = trainingService.updateTraining(t1);
         t2 = trainingService.updateTraining(t2);
-       // e2 = employeeService.updateEmployee(e2);
 
-
-        //when
-        /*initTrainingTO.setTitle("SPRING for begineers - Oracle");
-        trainingService.updateTraining(initTrainingTO);
-        initTrainingTO.setType("external");
-        trainingService.updateTraining(initTrainingTO);*/
-
-        //then
         fail();
 
 
@@ -175,7 +158,7 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testshouldReturn5000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testshouldReturn12000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
@@ -189,19 +172,50 @@ public class TrainingServiceTest {
         keys.add("oracle");
 
         TrainingTO trainingTO = createTraining("SQL for beginners", "internal","tachnical", 20,
-                "2018-10-01", "2018-10-01", keys, 10000.0);
+                "2017-10-01", "2017-10-01", keys, 10000.0);
         //when
         TrainingTO secondTraining = trainingService.addTraining(trainingTO);
         trainingService.addStudentToTraining(secondTraining,studentTO);
 
         //when
-        Double sum = trainingService.sumAllCostForStudent(studentTO);
+        Double sum = trainingService.sumAllCostForStudent(studentTO.getId());
         Double expected = new Double(12000.0);
 
         //then
         assertNotNull(sum);
         assertEquals(expected, sum,0.01);
     }
+
+    @Test
+    @Transactional
+    public void testshouldReturn2000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("sql");
+        keys.add("oracle");
+
+        TrainingTO trainingTO = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2017-10-01", "2017-10-01", keys, 10000.0);
+        //when
+        TrainingTO secondTraining = trainingService.addTraining(trainingTO);
+        trainingService.addStudentToTraining(secondTraining,studentTO);
+
+        //when
+        Double sum = trainingService.sumAllCostForStudentInThisYear(studentTO.getId());
+        Double expected = new Double(2000.0);
+
+        //then
+        assertNotNull(sum);
+        assertEquals(expected, sum,0.01);
+    }
+
 
     @Test(expected = TooLargeTotalAmountException.class)
     @Transactional

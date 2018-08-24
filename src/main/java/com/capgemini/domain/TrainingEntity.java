@@ -4,6 +4,7 @@ import com.capgemini.listeners.InsertListener;
 import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,9 @@ import java.util.List;
 @Table(name = "TRAINING")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @EntityListeners({UpdateListener.class, InsertListener.class})
-public class TrainingEntity extends AbstractEntity{
+public class TrainingEntity extends AbstractEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -58,8 +61,8 @@ public class TrainingEntity extends AbstractEntity{
 
 
     public TrainingEntity() {
-        this.students = new ArrayList<>();
-        this.trainers = new ArrayList<>();
+        //this.students = new ArrayList<>();
+        //this.trainers = new ArrayList<>();
     }
 
     public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,

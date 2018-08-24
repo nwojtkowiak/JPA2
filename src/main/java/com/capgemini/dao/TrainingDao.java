@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.time.Year;
 import java.util.List;
 
@@ -20,13 +21,13 @@ public interface TrainingDao extends CrudRepository<TrainingEntity, Long> {
 
 
     @Query("select COALESCE(sum(t.amount),0) from TrainingEntity t join t.students s on s.id = :student  ")
-     Double sumCostAllTrainingForStudent(@Param("student") long id );
+     double sumCostAllTrainingForStudent(@Param("student") long id );
 
-   /* @Query("select sum(t.amount) from TrainingEntity t join t.students s on s.id = :student  "
-          //  +" and t.dateFrom between :dtFrom and :dtTo"
-    )
-    Long sumCostAllTrainingForStudentPerYear(@Param("student") long id, @Param("dtFrom") Year dtFrom, @Param("dtTo") Year dtTo);
-*/
-    @Query("select count(t.id) from TrainingEntity t join t.students s on s.id = :student  ")
-    Long countAllTrainingForStudentPerYear(@Param("student") long id );
+    @Query("select COALESCE(sum(t.amount),0) from TrainingEntity t join t.students s on s.id = :student  "
+            +" where t.dateFrom between :dtFrom and :dtTo")
+    double sumCostAllTrainingForStudentPerYear(@Param("student") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo);
+
+    @Query("select count(t.id) from TrainingEntity t join t.students s on s.id = :student "
+            +  " where t.dateFrom between :dtFrom and :dtTo ")
+    int countAllTrainingForStudentPerYear(@Param("student") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo);
 }

@@ -1,10 +1,8 @@
 package com.capgemini.service.impl;
 
-import com.capgemini.dao.EmployeeDao;
 import com.capgemini.dao.StudentDao;
 import com.capgemini.dao.TrainerDao;
 import com.capgemini.dao.TrainingDao;
-import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
 import com.capgemini.domain.TrainingEntity;
@@ -16,20 +14,21 @@ import com.capgemini.mappers.TrainerMapper;
 import com.capgemini.mappers.TrainingMapper;
 import com.capgemini.service.EmployeeService;
 import com.capgemini.service.TrainingService;
-import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-//@Transactional
+@Transactional
 public class TrainingServiceImpl implements TrainingService {
 
     @Autowired
@@ -45,7 +44,7 @@ public class TrainingServiceImpl implements TrainingService {
     private EmployeeService employeeService;
 
     @Override
-    // @Transactional(readOnly = false)
+    @Transactional(readOnly = false)
     public TrainingTO addTraining(TrainingTO training) {
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
 
@@ -69,11 +68,27 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    //@Transactional(readOnly = false)
+    @Transactional(readOnly = false)
     public TrainingTO updateTraining(TrainingTO training) //throws OptimisticLockingFailureException
     {
 
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
+
+        List<StudentEntity> students = new ArrayList<>();
+        for (Long studentId : training.getStudents()) {
+            StudentEntity student = studentDao.findOne(studentId);
+            students.add(student);
+        }
+
+        List<TrainerEntity> trainers = new ArrayList<>();
+        for (Long trainerId : training.getTrainers()) {
+            TrainerEntity trainer = trainerDao.findOne(trainerId);
+            trainers.add(trainer);
+        }
+
+        trainingEntity.setStudents(students);
+        trainingEntity.setTrainers(trainers);
+
         //if(training.getVersion() == trainingEntity.getVersion()) {
         trainingEntity = trainingDao.save(trainingEntity);
         return TrainingMapper.toTO(trainingEntity);
@@ -108,7 +123,10 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
 
+
+
     @Override
+    @Transactional(readOnly = false)
     public TrainingTO addTrainerToTraining(TrainingTO training, TrainerTO trainer) throws ParticipationInCourseException {
         TrainerEntity trainerEntity = trainerDao.findOne(trainer.getId());
 
@@ -130,15 +148,17 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
         StudentEntity studentEntity = studentDao.findOne(student.getId());
 
         if (studentEntity.getId() != null) {
             TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
 
-            Double sum = trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+            double sum = sumAllCostForStudentInThisYear(studentEntity.getId());
             sum += training.getAmount();
-            Long countTraining = trainingDao.countAllTrainingForStudentPerYear(studentEntity.getId());
+            int countTraining = countAllTrainingForStudentInThisYear(studentEntity.getId());
+
             checkCorrectSum(sum, studentEntity.getGrade(), countTraining + 1);
 
             trainingEntity.getStudents().add(studentEntity);
@@ -155,12 +175,32 @@ public class TrainingServiceImpl implements TrainingService {
         return training;
     }
 
+
     @Override
-    public Double sumAllCostForStudent(StudentTO student) {
-        StudentEntity studentEntity = StudentMapper.toEntity(student);
-        return trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+    public double sumAllCostForStudent(long studentId) {
+        return trainingDao.sumCostAllTrainingForStudent(studentId);
 
     }
+
+    @Override
+    public double sumAllCostForStudentInThisYear(long studentId) {
+
+        Date dtFrom = Date.valueOf(setStartDateThisYear());
+        Date dtTo = Date.valueOf(setEndDateThisYear());
+
+        return trainingDao.sumCostAllTrainingForStudentPerYear(studentId, dtFrom, dtTo);
+
+    }
+
+    @Override
+    public int countAllTrainingForStudentInThisYear(long studentId) {
+        Date dtFrom = Date.valueOf(setStartDateThisYear());
+        Date dtTo = Date.valueOf(setEndDateThisYear());
+
+        return trainingDao.countAllTrainingForStudentPerYear(studentId, dtFrom, dtTo);
+
+    }
+
 
     private void checkCorrectSum(Double sum, int grade, long countTraining) throws TooLargeTotalAmountException, TooMuchTrainingException {
         if (grade >= 4) {
@@ -175,5 +215,17 @@ public class TrainingServiceImpl implements TrainingService {
                 throw new TooMuchTrainingException();
             }
         }
+    }
+
+    private String setStartDateThisYear(){
+        int year = LocalDate.now().getYear();
+        LocalDate date = LocalDate.of(year, 1,1);
+        return date.toString();
+    }
+
+    private String setEndDateThisYear(){
+        int year = LocalDate.now().getYear();
+        LocalDate date = LocalDate.of(year, 12,31);
+        return date.toString();
     }
 }

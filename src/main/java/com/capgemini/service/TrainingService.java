@@ -8,6 +8,7 @@ import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.dao.OptimisticLockingFailureException;
 
+import java.sql.Date;
 import java.util.List;
 
 public interface TrainingService {
@@ -28,5 +29,9 @@ public interface TrainingService {
 
     TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
 
-    Double sumAllCostForStudent(StudentTO student);
+    double sumAllCostForStudent(long studentId);
+
+    double sumAllCostForStudentInThisYear(long studentId);
+
+    int countAllTrainingForStudentInThisYear(long studentId);
 }
