@@ -55,7 +55,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         trainerEntity = trainerDao.save(trainerEntity);
 
         if (trainerEntity.getId() != null) {
-            EmployeeEntity employeeEntity = employeeDao.findOne(employee.getId());
+            EmployeeEntity employeeEntity = employeeDao.findById(employee.getId()).get();
             employeeEntity.setTrainer(trainerEntity);
             employeeDao.save(employeeEntity);
             return TrainerMapper.toTO(trainerEntity);
@@ -84,7 +84,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         StudentEntity studentEntity;
 
         if(boss != null){
-            bossEntity = employeeDao.findOne(boss.getId());
+            bossEntity = employeeDao.findById(boss.getId()).get();
             studentEntity = new StudentEntity(employee.getFirstName(), employee.getLastName(),
                     employee.getPosition(), grade, bossEntity);
         }else {
@@ -95,7 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         studentEntity = studentDao.save(studentEntity);
 
         if (studentEntity.getId() != null) {
-            EmployeeEntity employeeEntity = employeeDao.findOne(employee.getId());
+            EmployeeEntity employeeEntity = employeeDao.findById(employee.getId()).get();
             employeeEntity.setStudent(studentEntity);
             return StudentMapper.toTO(studentDao.save(studentEntity));
         }
@@ -105,12 +105,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeTO findEmployee(long id) {
-        return EmployeeMapper.toTO(employeeDao.findOne(id));
+        return EmployeeMapper.toTO(employeeDao.findById(id).get());
     }
 
     @Override
-    public EmployeeEntity findEmployeeByStudent(long student_id) {
-        StudentEntity studentEntity = studentDao.findOne(student_id);
+    public EmployeeEntity findEmployeeByStudent(long studentId) {
+        StudentEntity studentEntity = studentDao.findById(studentId).get();;
         return employeeDao.findByStudent(studentEntity);
     }
 

@@ -21,12 +21,6 @@ public abstract class AbstractDao<T, K extends Serializable> implements Dao<T, K
     private Class<T> domainClass;
 
     @Override
-    public T save(T entity) {
-        entityManager.persist(entity);
-        return entity;
-    }
-
-    @Override
     public T getOne(K id) {
         return entityManager.getReference(getDomainClass(), id);
     }

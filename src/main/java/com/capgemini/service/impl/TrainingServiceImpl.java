@@ -50,13 +50,13 @@ public class TrainingServiceImpl implements TrainingService {
 
         List<StudentEntity> students = new ArrayList<>();
         for (Long studentId : training.getStudents()) {
-            StudentEntity student = studentDao.findOne(studentId);
+            StudentEntity student = studentDao.findById(studentId).get();;
             students.add(student);
         }
 
         List<TrainerEntity> trainers = new ArrayList<>();
         for (Long trainerId : training.getTrainers()) {
-            TrainerEntity trainer = trainerDao.findOne(trainerId);
+            TrainerEntity trainer = trainerDao.findById(trainerId).get();;
             trainers.add(trainer);
         }
 
@@ -76,13 +76,13 @@ public class TrainingServiceImpl implements TrainingService {
 
         List<StudentEntity> students = new ArrayList<>();
         for (Long studentId : training.getStudents()) {
-            StudentEntity student = studentDao.findOne(studentId);
+            StudentEntity student = studentDao.findById(studentId).get();
             students.add(student);
         }
 
         List<TrainerEntity> trainers = new ArrayList<>();
         for (Long trainerId : training.getTrainers()) {
-            TrainerEntity trainer = trainerDao.findOne(trainerId);
+            TrainerEntity trainer = trainerDao.findById(trainerId).get();
             trainers.add(trainer);
         }
 
@@ -100,7 +100,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public TrainingTO findTraining(long id) {
-        TrainingEntity trainingEntity = trainingDao.findOne(id);
+        TrainingEntity trainingEntity = trainingDao.findById(id).get();
 
         return TrainingMapper.toTO(trainingEntity);
     }
@@ -111,14 +111,19 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    public List<TrainingTO> findTrainingsByKeyWord(String key) {
+        return TrainingMapper.map2TOs(trainingDao.findByKeyWordsContains(key));
+    }
+
+    @Override
     public List<TrainerTO> findTrainers(TrainingTO training) {
-        TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+        TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
         return TrainerMapper.map2TOs(trainingEntity.getTrainers());
     }
 
     @Override
     public List<StudentTO> findStudents(TrainingTO training) {
-        TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+        TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
         return StudentMapper.map2TOs(trainingEntity.getStudents());
     }
 
@@ -128,10 +133,10 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = false)
     public TrainingTO addTrainerToTraining(TrainingTO training, TrainerTO trainer) throws ParticipationInCourseException {
-        TrainerEntity trainerEntity = trainerDao.findOne(trainer.getId());
+        TrainerEntity trainerEntity = trainerDao.findById(trainer.getId()).get();
 
         if (trainerEntity.getId() != null) {
-            TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+            TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
 
             trainingEntity.getTrainers().add(trainerEntity);
             if (trainingEntity.getStudents().size() > 0) {
@@ -150,10 +155,10 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = false)
     public TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
-        StudentEntity studentEntity = studentDao.findOne(student.getId());
+        StudentEntity studentEntity = studentDao.findById(student.getId()).get();
 
         if (studentEntity.getId() != null) {
-            TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
+            TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
 
             double sum = sumAllCostForStudentInThisYear(studentEntity.getId());
             sum += training.getAmount();
@@ -199,6 +204,19 @@ public class TrainingServiceImpl implements TrainingService {
 
         return trainingDao.countAllTrainingForStudentPerYear(studentId, dtFrom, dtTo);
 
+    }
+
+    @Override
+    public int sumHoursAllTrainingForTrainerInThisYear(long trainerId) {
+        Date dtFrom = Date.valueOf(setStartDateThisYear());
+        Date dtTo = Date.valueOf(setEndDateThisYear());
+
+        return trainingDao.sumHoursAllTrainingForTrainerPerYear(trainerId, dtFrom, dtTo);
+    }
+
+    @Override
+    public int countAllTrainingForEmployeeInPeriod(long employeeId, Date dtFrom, Date dtTo) {
+        return trainingDao.countAllTrainingForEmployeeInPeriod(employeeId, dtFrom, dtTo);
     }
 
 

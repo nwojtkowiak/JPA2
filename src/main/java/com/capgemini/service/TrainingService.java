@@ -21,6 +21,8 @@ public interface TrainingService {
 
     List<TrainingTO> findTrainings();
 
+    List<TrainingTO> findTrainingsByKeyWord(String key);
+
     List<TrainerTO> findTrainers(TrainingTO training);
 
     List<StudentTO> findStudents(TrainingTO training);
@@ -34,4 +36,10 @@ public interface TrainingService {
     double sumAllCostForStudentInThisYear(long studentId);
 
     int countAllTrainingForStudentInThisYear(long studentId);
+
+    int sumHoursAllTrainingForTrainerInThisYear(long trainerId);
+
+    int countAllTrainingForEmployeeInPeriod(long employeeId, Date dtFrom, Date dtTo);
+
+
 }

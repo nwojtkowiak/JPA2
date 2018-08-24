@@ -68,7 +68,7 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
     public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
                           int duration, List<String> keyWords, double amount) {
 
-        //super(version);
+        super();
         this.id = id;
         this.title = title;
         this.type = type;

@@ -3,7 +3,6 @@ package com.capgemini.types;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TrainingTO {
 
@@ -13,9 +12,9 @@ public class TrainingTO {
     private String kind;
     private Date dateFrom;
     private Date dateTo;
+    private double amount;
     private int duration;
     private List<String> keyWords;
-    private double amount;
     private List<Long> students;
     private List<Long> trainers;
    // private long version;
@@ -233,24 +232,4 @@ public class TrainingTO {
         }
     }
 
-    /*@Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TrainingTO that = (TrainingTO) o;
-        return //version == that.version &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(kind, that.kind) &&
-                Objects.equals(dateFrom, that.dateFrom) &&
-                Objects.equals(dateTo, that.dateTo) &&
-                Objects.equals(amount, that.amount) &&
-                Objects.equals(duration, that.duration);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash( id, title, type, kind, dateFrom, dateTo, amount, duration);
-    }*/
 }
