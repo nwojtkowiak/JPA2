@@ -1,8 +1,6 @@
 package com.capgemini.service;
 
-import com.capgemini.exceptions.ParticipationInCourseException;
-import com.capgemini.exceptions.ProblemWithAddStudent;
-import com.capgemini.exceptions.ProblemWithAddTrener;
+import com.capgemini.exceptions.*;
 import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
@@ -75,7 +73,7 @@ public class TrainingServiceTest {
         assertEquals(2,finds.size());
     }
 
-    @Test(expected = OptimisticLockingFailureException.class)
+    @Test//(expected = OptimisticLockingFailureException.class)
     @Transactional
     public void testshouldReturnOptimisticLocking(){
         //given
@@ -133,7 +131,7 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testshouldReturn1TrenerAnd3Students() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
+    public void testshouldReturn1TrenerAnd3Students() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Treningowa1", "manager");
@@ -177,7 +175,37 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testshouldReturn5000ForStudent1() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
+    public void testshouldReturn5000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("sql");
+        keys.add("oracle");
+
+        TrainingTO trainingTO = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2018-10-01", "2018-10-01", keys, 10000.0);
+        //when
+        TrainingTO secondTraining = trainingService.addTraining(trainingTO);
+        trainingService.addStudentToTraining(secondTraining,studentTO);
+
+        //when
+        Double sum = trainingService.sumAllCostForStudent(studentTO);
+        Double expected = new Double(12000.0);
+
+        //then
+        assertNotNull(sum);
+        assertEquals(expected, sum,0.01);
+    }
+
+    @Test(expected = TooLargeTotalAmountException.class)
+    @Transactional
+    public void testshouldReturnTooLargeTotalAmountException() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
@@ -194,21 +222,58 @@ public class TrainingServiceTest {
                 "2018-10-01", "2018-10-01", keys, 14000.0);
         //when
         TrainingTO secondTraining = trainingService.addTraining(trainingTO);
-        secondTraining = trainingService.addStudentToTraining(secondTraining,studentTO);
+        trainingService.addStudentToTraining(secondTraining,studentTO);
+
+
+    }
+
+    @Test(expected = TooMuchTrainingException.class)
+    @Transactional
+    public void testshouldReturnTooMuchTrainingException() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO,studentTO);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("sql");
+        keys.add("oracle");
+
+        TrainingTO trainingTO2 = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2018-10-01", "2018-10-01", keys, 2000.0);
+        TrainingTO secondTraining = trainingService.addTraining(trainingTO2);
+        trainingService.addStudentToTraining(secondTraining,studentTO);
+
+        keys = new ArrayList<>();
+        keys.add("html");
+        keys.add("css");
+
+        TrainingTO trainingTO3 = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2018-10-01", "2018-10-01", keys, 2000.0);
+        TrainingTO thirdTraining = trainingService.addTraining(trainingTO3);
+        trainingService.addStudentToTraining(thirdTraining,studentTO);
+
+        keys = new ArrayList<>();
+        keys.add("c++");
+
+        TrainingTO trainingTO4 = createTraining("SQL for beginners", "internal","tachnical", 20,
+                "2018-10-01", "2018-10-01", keys, 2000.0);
+        TrainingTO fourthTraining = trainingService.addTraining(trainingTO4);
 
         //when
-        Long sum = trainingService.sumAllCostForStudent(studentTO);
-        Long expected = new Long(16000);
 
-        //then
-        assertNotNull(sum);
-        assertEquals(expected, sum);
+        trainingService.addStudentToTraining(fourthTraining,studentTO);
+
+
     }
 
 
     @Test(expected =  ParticipationInCourseException.class)
     @Transactional
-    public void testshouldReturnParticipationInCourseExceptionWhenTrainer() throws ParticipationInCourseException, ProblemWithAddStudent, ProblemWithAddTrener {
+    public void testshouldReturnParticipationInCourseExceptionWhenTrainer() throws ParticipationInCourseException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
@@ -225,7 +290,7 @@ public class TrainingServiceTest {
 
     @Test(expected =  ParticipationInCourseException.class)
     @Transactional
-    public void testshouldReturnParticipationInCourseExceptionWhenStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent {
+    public void testshouldReturnParticipationInCourseExceptionWhenStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");

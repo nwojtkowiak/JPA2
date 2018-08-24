@@ -1,6 +1,8 @@
 package com.capgemini.service;
 
 import com.capgemini.exceptions.ParticipationInCourseException;
+import com.capgemini.exceptions.TooLargeTotalAmountException;
+import com.capgemini.exceptions.TooMuchTrainingException;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
@@ -24,7 +26,7 @@ public interface TrainingService {
 
     TrainingTO addTrainerToTraining(TrainingTO training,TrainerTO trainer) throws ParticipationInCourseException;
 
-    TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException;
+    TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
 
-    Long sumAllCostForStudent(StudentTO student);
+    Double sumAllCostForStudent(StudentTO student);
 }

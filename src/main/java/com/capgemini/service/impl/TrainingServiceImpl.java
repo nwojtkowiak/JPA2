@@ -9,6 +9,8 @@ import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
 import com.capgemini.domain.TrainingEntity;
 import com.capgemini.exceptions.ParticipationInCourseException;
+import com.capgemini.exceptions.TooLargeTotalAmountException;
+import com.capgemini.exceptions.TooMuchTrainingException;
 import com.capgemini.mappers.StudentMapper;
 import com.capgemini.mappers.TrainerMapper;
 import com.capgemini.mappers.TrainingMapper;
@@ -43,18 +45,18 @@ public class TrainingServiceImpl implements TrainingService {
     private EmployeeService employeeService;
 
     @Override
-   // @Transactional(readOnly = false)
+    // @Transactional(readOnly = false)
     public TrainingTO addTraining(TrainingTO training) {
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
 
         List<StudentEntity> students = new ArrayList<>();
-        for(Long studentId : training.getStudents()){
+        for (Long studentId : training.getStudents()) {
             StudentEntity student = studentDao.findOne(studentId);
             students.add(student);
         }
 
         List<TrainerEntity> trainers = new ArrayList<>();
-        for(Long trainerId : training.getTrainers()){
+        for (Long trainerId : training.getTrainers()) {
             TrainerEntity trainer = trainerDao.findOne(trainerId);
             trainers.add(trainer);
         }
@@ -68,14 +70,16 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     //@Transactional(readOnly = false)
-    public TrainingTO updateTraining(TrainingTO training) throws OptimisticLockingFailureException {
-        TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
-        if(training.getVersion() == trainingEntity.getVersion()) {
-            trainingEntity = trainingDao.save(trainingEntity);
-            return TrainingMapper.toTO(trainingEntity);
-        }
+    public TrainingTO updateTraining(TrainingTO training) //throws OptimisticLockingFailureException
+    {
 
-        throw new OptimisticLockingFailureException("updateTraining");
+        TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
+        //if(training.getVersion() == trainingEntity.getVersion()) {
+        trainingEntity = trainingDao.save(trainingEntity);
+        return TrainingMapper.toTO(trainingEntity);
+        //  }
+
+        //   throw new OptimisticLockingFailureException("updateTraining");
 
     }
 
@@ -88,7 +92,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public List<TrainingTO> findTrainings() {
-       return TrainingMapper.map2TOs(trainingDao.findAll() );
+        return TrainingMapper.map2TOs(trainingDao.findAll());
     }
 
     @Override
@@ -108,12 +112,12 @@ public class TrainingServiceImpl implements TrainingService {
     public TrainingTO addTrainerToTraining(TrainingTO training, TrainerTO trainer) throws ParticipationInCourseException {
         TrainerEntity trainerEntity = trainerDao.findOne(trainer.getId());
 
-        if(trainerEntity.getId() != null) {
+        if (trainerEntity.getId() != null) {
             TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
 
             trainingEntity.getTrainers().add(trainerEntity);
-            if(trainingEntity.getStudents().size() > 0){
-                if(employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(),trainingEntity.getStudents())){
+            if (trainingEntity.getStudents().size() > 0) {
+                if (employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(), trainingEntity.getStudents())) {
                     trainingEntity.getTrainers().remove(trainerEntity);
                     throw new ParticipationInCourseException();
                 }
@@ -126,16 +130,20 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public TrainingTO addStudentToTraining(TrainingTO training,StudentTO student) throws ParticipationInCourseException {
+    public TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
         StudentEntity studentEntity = studentDao.findOne(student.getId());
 
-        if(studentEntity.getId() != null) {
+        if (studentEntity.getId() != null) {
             TrainingEntity trainingEntity = trainingDao.findOne(training.getId());
-            Long sum = trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+
+            Double sum = trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
+            sum += training.getAmount();
+            Long countTraining = trainingDao.countAllTrainingForStudentPerYear(studentEntity.getId());
+            checkCorrectSum(sum, studentEntity.getGrade(), countTraining + 1);
 
             trainingEntity.getStudents().add(studentEntity);
-            if(trainingEntity.getTrainers().size() > 0){
-                if(employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(),trainingEntity.getStudents())){
+            if (trainingEntity.getTrainers().size() > 0) {
+                if (employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(), trainingEntity.getStudents())) {
                     trainingEntity.getStudents().remove(studentEntity);
                     throw new ParticipationInCourseException();
                 }
@@ -148,9 +156,24 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Long sumAllCostForStudent(StudentTO student) {
+    public Double sumAllCostForStudent(StudentTO student) {
         StudentEntity studentEntity = StudentMapper.toEntity(student);
         return trainingDao.sumCostAllTrainingForStudent(studentEntity.getId());
 
+    }
+
+    private void checkCorrectSum(Double sum, int grade, long countTraining) throws TooLargeTotalAmountException, TooMuchTrainingException {
+        if (grade >= 4) {
+            if (sum > 50000) {
+                throw new TooLargeTotalAmountException();
+            }
+        } else {
+            if (sum > 15000) {
+                throw new TooLargeTotalAmountException();
+            }
+            if (countTraining > 3) {
+                throw new TooMuchTrainingException();
+            }
+        }
     }
 }

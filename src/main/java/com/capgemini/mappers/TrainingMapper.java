@@ -27,7 +27,7 @@ public class TrainingMapper {
                 .withKeyWords(trainingEntity.getKeyWords())
                 .withStudents(StudentMapper.map2Ids(trainingEntity.getStudents()))
                 .withTrainers(TrainerMapper.map2Ids(trainingEntity.getTrainers()))
-                .withVersion(trainingEntity.getVersion())
+                //.withVersion(trainingEntity.getVersion())
                 .build();
 
 

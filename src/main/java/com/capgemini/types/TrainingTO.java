@@ -18,11 +18,11 @@ public class TrainingTO {
     private double amount;
     private List<Long> students;
     private List<Long> trainers;
-    private long version;
+   // private long version;
 
     public TrainingTO(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
                              int duration, List<String> keyWords, double amount,
-                      List<Long> students, List<Long> trainers, long version) {
+                      List<Long> students, List<Long> trainers/*, long version*/) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -34,7 +34,7 @@ public class TrainingTO {
         this.amount = amount;
         this.students = students;
         this.trainers = trainers;
-        this.version = version;
+      //  this.version = version;
     }
 
     public Long getId() {
@@ -121,13 +121,13 @@ public class TrainingTO {
         return trainers;
     }
 
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
+//    public long getVersion() {
+//        return version;
+//    }
+//
+//    public void setVersion(long version) {
+//        this.version = version;
+//    }
 
     public static class TrainingTOBuilder {
 
@@ -142,7 +142,7 @@ public class TrainingTO {
         private double amount;
         private List<Long> students = new ArrayList<>();
         private List<Long> trainers = new ArrayList<>();
-        private long version;
+        //private long version;
 
 
 
@@ -208,18 +208,18 @@ public class TrainingTO {
             return this;
         }
 
-        public TrainingTOBuilder withVersion(long version) {
-            this.version = version;
-            return this;
-
-        }
+//        public TrainingTOBuilder withVersion(long version) {
+//            this.version = version;
+//            return this;
+//
+//        }
 
 
 
         public TrainingTO build() {
             checkBeforeBuild(title, type, kind, dateFrom, dateTo, duration, keyWords, amount);
             return new TrainingTO(id, title, type, kind, dateFrom, dateTo, duration,
-                                    keyWords, amount, students, trainers, version);
+                                    keyWords, amount, students, trainers/*, version*/);
         }
 
         private void checkBeforeBuild(String title, String type, String kind, Date dateFrom, Date dateTo,
@@ -233,12 +233,12 @@ public class TrainingTO {
         }
     }
 
-    @Override
+    /*@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TrainingTO that = (TrainingTO) o;
-        return version == that.version &&
+        return //version == that.version &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(type, that.type) &&
@@ -251,6 +251,6 @@ public class TrainingTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(version, id, title, type, kind, dateFrom, dateTo, amount, duration);
-    }
+        return Objects.hash( id, title, type, kind, dateFrom, dateTo, amount, duration);
+    }*/
 }

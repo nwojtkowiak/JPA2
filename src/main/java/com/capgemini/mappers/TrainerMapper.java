@@ -24,7 +24,7 @@ public class TrainerMapper {
                 .withPosition(trainerEntity.getPosition())
                 .withLastName(trainerEntity.getLastName())
                 .withCompanyName(trainerEntity.getCompanyName())
-                .withVersion(trainerEntity.getVersion())
+                //.withVersion(trainerEntity.getVersion())
                 .build();
 
 
