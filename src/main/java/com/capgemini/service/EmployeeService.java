@@ -19,7 +19,15 @@ public interface EmployeeService {
 
     void delEmployee(long id) throws NotFoundException;
 
+    void delStudent(long id) throws NotFoundException;
+
+    void delTrainer(long id) throws NotFoundException;
+
     EmployeeTO updateEmployee(EmployeeTO employee) throws NotFoundException;
+
+    StudentTO updateStudent(StudentTO student) throws NotFoundException;
+
+    TrainerTO updateTrainer(TrainerTO trainerTO) throws NotFoundException;
 
     TrainerTO addInternalTrainer(EmployeeTO employee) throws ProblemWithAddTrener;
 

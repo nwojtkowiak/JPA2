@@ -76,6 +76,37 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public void delStudent(long id) throws NotFoundException {
+        Optional<StudentEntity> studentEntity = studentDao.findById(id);
+        if(studentEntity.isPresent()) {
+            List<TrainingEntity> trainingEntitiesStudent = trainingDao.findByStudentsContains(studentEntity.get());
+            for(TrainingEntity t : trainingEntitiesStudent){
+                t.getStudents().remove(studentEntity.get());
+                trainingDao.save(t);
+            }
+            studentDao.deleteById(id);
+        }else{
+            throw new NotFoundException("Student isn't exist");
+        }
+
+    }
+
+    @Override
+    public void delTrainer(long id) throws NotFoundException {
+        Optional<TrainerEntity> trainerEntity = trainerDao.findById(id);
+        if(trainerEntity.isPresent()) {
+            List<TrainingEntity> trainingEntitiesTrainer = trainingDao.findByTrainersContains(trainerEntity.get());
+            for(TrainingEntity t : trainingEntitiesTrainer){
+                t.getTrainers().remove(trainerEntity.get());
+                trainingDao.save(t);
+            }
+            trainerDao.deleteById(id);
+        }else{
+            throw new NotFoundException("Trainer isn't exist");
+        }
+    }
+
+    @Override
     public EmployeeTO updateEmployee(EmployeeTO employee) throws NotFoundException {
         EmployeeEntity employeeEntity = EmployeeMapper.toEntity(employee);
         if(employeeEntity.getId() == null || !employeeDao.findById(employeeEntity.getId()).isPresent()){
@@ -83,6 +114,26 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         employeeEntity = employeeDao.save(employeeEntity);
         return EmployeeMapper.toTO(employeeEntity);
+    }
+
+    @Override
+    public StudentTO updateStudent(StudentTO student) throws NotFoundException {
+        StudentEntity studentEntity = StudentMapper.toEntity(student);
+        if(studentEntity.getId() == null || !studentDao.findById(studentEntity.getId()).isPresent()){
+            throw new NotFoundException("Student isn't exist");
+        }
+        studentEntity = studentDao.save(studentEntity);
+        return StudentMapper.toTO(studentEntity);
+    }
+
+    @Override
+    public TrainerTO updateTrainer(TrainerTO trainer) throws NotFoundException {
+        TrainerEntity trainerEntity = TrainerMapper.toEntity(trainer);
+        if(trainerEntity.getId() == null || !trainerDao.findById(trainerEntity.getId()).isPresent()){
+            throw new NotFoundException("Trainer isn't exist");
+        }
+        trainerEntity = trainerDao.save(trainerEntity);
+        return TrainerMapper.toTO(trainerEntity);
     }
 
     @Override

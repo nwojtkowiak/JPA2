@@ -52,6 +52,14 @@ public class StudentTO {
         return version;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public static class StudentTOBuilder {
 
         private Long id;

@@ -16,8 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.capgemini.service.HelpMethods.createEmployee;
-import static com.capgemini.service.HelpMethods.createTraining;
+import static com.capgemini.service.HelpMethods.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -120,24 +119,12 @@ public class EmployeeServiceTest {
         training = trainingService.addTraining(training);
         trainingService.addTrainerToTraining(training,trainer.getId());
 
+        //when
+        employeeService.delEmployee(employeeTO.getId());
         EmployeeTO findEmployee = employeeService.findEmployee(employeeTO.getId());
         StudentTO findStudent = employeeService.findStudent(student.getId());
         TrainerTO findTrainer = employeeService.findTrainer(trainer.getId());
-
         List<TrainerTO> trainersForTraining = trainingService.findTrainers(training);
-
-        //then
-        assertNotNull(findEmployee);
-        assertNotNull(findStudent);
-        assertNotNull(findTrainer);
-        assertEquals(1, trainersForTraining.size());
-
-        //when
-        employeeService.delEmployee(employeeTO.getId());
-        findEmployee = employeeService.findEmployee(employeeTO.getId());
-        findStudent = employeeService.findStudent(student.getId());
-        findTrainer = employeeService.findTrainer(trainer.getId());
-        trainersForTraining = trainingService.findTrainers(training);
 
         //then
         assertNull(findEmployee);
@@ -202,6 +189,131 @@ public class EmployeeServiceTest {
         //when
         employeeTO.setFirstName("TEST");
         employeeService.updateEmployee(employeeTO);
+
+    }
+
+
+    @Test
+    public void testShouldReturnUpdatedForStudentAfterUpdate() throws NotFoundException, ProblemWithAddStudent {
+        //given
+        EmployeeTO employeeTO = createEmployee("Imie", "Naziwsko", "developer");
+        EmployeeTO saved = employeeService.addEmployee(employeeTO);
+        StudentTO studentTO = employeeService.addStudent(saved, 4,null);
+
+        //when
+        studentTO.setFirstName("Bill");
+        employeeService.updateStudent(studentTO);
+
+        //then
+        StudentTO updated = employeeService.findStudent(studentTO.getId());
+        assertEquals("Bill", updated.getFirstName());
+
+    }
+
+    @Test
+    public void testShouldReturnUpdatedForTrainerAfterUpdate() throws NotFoundException, ProblemWithAddTrener {
+        //given
+        EmployeeTO employeeTO = createEmployee("Imie", "Naziwsko", "developer");
+        EmployeeTO saved = employeeService.addEmployee(employeeTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(saved);
+
+        //when
+        trainerTO.setFirstName("Bill");
+        employeeService.updateTrainer(trainerTO);
+
+        //then
+        TrainerTO updated = employeeService.findTrainer(trainerTO.getId());
+        assertEquals("Bill", updated.getFirstName());
+
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testShouldReturnNotFoundExceptiondForStudentAfterUpdateNotExist() throws NotFoundException, ProblemWithAddStudent {
+        //given
+        EmployeeTO employeeTO = createEmployee("Imie", "Naziwsko", "developer");
+        EmployeeTO saved = employeeService.addEmployee(employeeTO);
+        StudentTO studentTO = createStudent("Imie", "Nazwisko", "manager");
+
+        //when
+        //when
+        studentTO.setFirstName("Bill");
+        employeeService.updateStudent(studentTO);
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testShouldReturnNotFoundExceptionForTrainerAfterUpdateNotExist() throws NotFoundException, ProblemWithAddTrener {
+        //given
+        EmployeeTO employeeTO = createEmployee("Imie", "Naziwsko", "developer");
+        EmployeeTO saved = employeeService.addEmployee(employeeTO);
+        TrainerTO trainerTO = createTrainer("Imie", "Nazwisko","manager", "");
+
+        //when
+        trainerTO.setFirstName("Bill");
+        employeeService.updateTrainer(trainerTO);
+
+
+    }
+
+    @Test
+    @Transactional
+    public void testShouldReturnNullAfterDelStudent() throws NotFoundException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Testowa", "programmer");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        StudentTO student = employeeService.addStudent(employeeTO, 4, null);
+
+        //when
+        employeeService.delStudent(student.getId());
+
+        //then
+        StudentTO findStudent = employeeService.findStudent(student.getId());
+        assertNull(findStudent);
+
+    }
+
+    @Test
+    @Transactional
+    public void testShouldReturnNullAfterDelTrainer() throws NotFoundException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
+
+        //given
+        EmployeeTO employeeTO = createEmployee("Ania", "Testowa", "programmer");
+        employeeTO = employeeService.addEmployee(employeeTO);
+
+        TrainerTO trainer = employeeService.addInternalTrainer(employeeTO);
+
+        //when
+        employeeService.delTrainer(trainer.getId());
+
+        //then
+        TrainerTO findTrainer = employeeService.findTrainer(trainer.getId());
+        assertNull(findTrainer);
+    }
+
+    @Test(expected = NotFoundException.class)
+    @Transactional
+    public void testShouldReturnNotFoundExceptionAfterDelNotExistStudent() throws NotFoundException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
+
+        //given
+        Long id = 4L;
+
+        //when
+        employeeService.delStudent(id);
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    @Transactional
+    public void testShouldReturnNotFoundExceptionAfterDelNotExistTrainer() throws NotFoundException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
+
+        //given
+        Long id = 4L;
+
+        //when
+        employeeService.delTrainer(id);
 
     }
 }
