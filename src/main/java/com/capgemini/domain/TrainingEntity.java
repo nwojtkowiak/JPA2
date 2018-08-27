@@ -45,10 +45,6 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
     @Column(nullable = false)
     private double amount;
 
-//    @Version
-//    @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
-//    private int version;
-
     @ManyToMany
     @JoinTable(name = "student_training", joinColumns = {@JoinColumn(name = "training_id")},
             inverseJoinColumns = {@JoinColumn(name = "student_id")})
@@ -61,13 +57,10 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
 
 
     public TrainingEntity() {
-        //this.students = new ArrayList<>();
-        //this.trainers = new ArrayList<>();
     }
 
     public TrainingEntity(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
                           int duration, List<String> keyWords, double amount) {
-
         super();
         this.id = id;
         this.title = title;
@@ -136,26 +129,6 @@ public class TrainingEntity extends AbstractEntity implements Serializable {
 
     public void setKind(String kind) {
         this.kind = kind;
-    }
-
-    public void setDateFrom(Date dateFrom) {
-        this.dateFrom = dateFrom;
-    }
-
-    public void setDateTo(Date dateTo) {
-        this.dateTo = dateTo;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public void setKeyWords(List<String> keyWords) {
-        this.keyWords = keyWords;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
     }
 
     public void setStudents(List<StudentEntity> students) {

@@ -3,23 +3,29 @@ package com.capgemini.service.impl;
 import com.capgemini.dao.EmployeeDao;
 import com.capgemini.dao.StudentDao;
 import com.capgemini.dao.TrainerDao;
+import com.capgemini.dao.TrainingDao;
 import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
+import com.capgemini.domain.TrainingEntity;
 import com.capgemini.exceptions.ProblemWithAddStudent;
 import com.capgemini.exceptions.ProblemWithAddTrener;
 import com.capgemini.mappers.EmployeeMapper;
 import com.capgemini.mappers.StudentMapper;
 import com.capgemini.mappers.TrainerMapper;
+import com.capgemini.mappers.TrainingMapper;
 import com.capgemini.service.EmployeeService;
+import com.capgemini.service.TrainingService;
 import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -33,6 +39,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private StudentDao studentDao;
 
+    @Autowired
+    private TrainingDao trainingDao;
+
 
     @Override
     public EmployeeTO addEmployee(EmployeeTO employee) {
@@ -42,8 +51,36 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeTO updateEmployee(EmployeeTO employee) {
+    public void delEmployee(long id) throws NotFoundException {
+        Optional<EmployeeEntity> employeeEntity = employeeDao.findById(id);
+        if(employeeEntity.isPresent()) {
+            StudentEntity student = employeeEntity.get().getStudent();
+            TrainerEntity trainer = employeeEntity.get().getTrainer();
+
+            List<TrainingEntity> trainingEntitiesStudent = trainingDao.findByStudentsContains(student);
+            for(TrainingEntity t : trainingEntitiesStudent){
+                t.getStudents().remove(student);
+                trainingDao.save(t);
+            }
+            List<TrainingEntity> trainingEntitiesTrainer = trainingDao.findByTrainersContains(trainer);
+            for(TrainingEntity t : trainingEntitiesTrainer){
+                t.getTrainers().remove(trainer);
+                trainingDao.save(t);
+            }
+
+            employeeDao.deleteById(id);
+        }else{
+            throw new NotFoundException("Employee isn't exist");
+        }
+
+    }
+
+    @Override
+    public EmployeeTO updateEmployee(EmployeeTO employee) throws NotFoundException {
         EmployeeEntity employeeEntity = EmployeeMapper.toEntity(employee);
+        if(employeeEntity.getId() == null || !employeeDao.findById(employeeEntity.getId()).isPresent()){
+            throw new NotFoundException("Employee isn't exist");
+        }
         employeeEntity = employeeDao.save(employeeEntity);
         return EmployeeMapper.toTO(employeeEntity);
     }
@@ -105,13 +142,32 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeTO findEmployee(long id) {
-        return EmployeeMapper.toTO(employeeDao.findById(id).get());
+        Optional<EmployeeEntity> employeeEntity =  employeeDao.findById(id);
+        return employeeEntity.map(EmployeeMapper::toTO).orElse(null);
     }
 
     @Override
-    public EmployeeEntity findEmployeeByStudent(long studentId) {
+    public StudentTO findStudent(long studentId) {
+        Optional<StudentEntity> studentEntity =  studentDao.findById(studentId);
+        return studentEntity.map(StudentMapper::toTO).orElse(null);
+    }
+
+    @Override
+    public TrainerTO findTrainer(long trainerId) {
+        Optional<TrainerEntity> trainerEntity =  trainerDao.findById(trainerId);
+        return trainerEntity.map(TrainerMapper::toTO).orElse(null);
+    }
+
+    @Override
+    public EmployeeTO findEmployeeByStudent(long studentId) {
         StudentEntity studentEntity = studentDao.findById(studentId).get();;
-        return employeeDao.findByStudent(studentEntity);
+        return EmployeeMapper.toTO(employeeDao.findByStudent(studentEntity));
+    }
+
+    @Override
+    public EmployeeTO findEmployeeByTrainer(long trainerId) {
+        TrainerEntity trainerEntity = trainerDao.findById(trainerId).get();;
+        return EmployeeMapper.toTO(employeeDao.findByTrainer(trainerEntity));
     }
 
     @Override

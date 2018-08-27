@@ -3,12 +3,14 @@ package com.capgemini.service.impl;
 import com.capgemini.dao.StudentDao;
 import com.capgemini.dao.TrainerDao;
 import com.capgemini.dao.TrainingDao;
+import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
 import com.capgemini.domain.TrainingEntity;
 import com.capgemini.exceptions.ParticipationInCourseException;
 import com.capgemini.exceptions.TooLargeTotalAmountException;
 import com.capgemini.exceptions.TooMuchTrainingException;
+import com.capgemini.mappers.EmployeeMapper;
 import com.capgemini.mappers.StudentMapper;
 import com.capgemini.mappers.TrainerMapper;
 import com.capgemini.mappers.TrainingMapper;
@@ -18,6 +20,7 @@ import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingSearchCriteriaTO;
 import com.capgemini.types.TrainingTO;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -45,19 +49,29 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional(readOnly = false)
-    public TrainingTO addTraining(TrainingTO training) {
+    public TrainingTO addTraining(TrainingTO training) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
 
         List<StudentEntity> students = new ArrayList<>();
         for (Long studentId : training.getStudents()) {
             StudentEntity student = studentDao.findById(studentId).get();
+            checkConditionsForStudent( trainingEntity, student);
             students.add(student);
+            if(!checkTrainersAndStudents(trainingEntity)){
+                students.remove(student);
+                throw new ParticipationInCourseException();
+            }
+
         }
 
         List<TrainerEntity> trainers = new ArrayList<>();
         for (Long trainerId : training.getTrainers()) {
             TrainerEntity trainer = trainerDao.findById(trainerId).get();
             trainers.add(trainer);
+            if(!checkTrainersAndStudents(trainingEntity)){
+                trainers.remove(trainer);
+                throw new ParticipationInCourseException();
+            }
         }
 
         trainingEntity.setStudents(students);
@@ -68,35 +82,55 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    public void delTraining(long id) throws NotFoundException {
+        if(trainingDao.findById(id).isPresent()) {
+            trainingDao.deleteById(id);
+        }else{
+            throw new NotFoundException("Training isn't exist");
+        }
+    }
+
+    @Override
     @Transactional(readOnly = false)
-    public TrainingTO updateTraining(TrainingTO training){
+    public TrainingTO updateTraining(TrainingTO training) throws TooLargeTotalAmountException, TooMuchTrainingException, ParticipationInCourseException, NotFoundException {
 
-        TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
+        if(training.getId() != null) {
+            TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
 
-        List<StudentEntity> students = new ArrayList<>();
-        for (Long studentId : training.getStudents()) {
-            StudentEntity student = studentDao.findById(studentId).get();
-            students.add(student);
+            List<TrainerEntity> trainers = new ArrayList<>();
+            for (Long trainerId : training.getTrainers()) {
+                TrainerEntity trainer = trainerDao.findById(trainerId).get();
+                trainers.add(trainer);
+                if (!checkTrainersAndStudents(trainingEntity)) {
+                    trainers.remove(trainer);
+                    throw new ParticipationInCourseException();
+                }
+            }
+
+            List<StudentEntity> students = new ArrayList<>();
+            for (Long studentId : training.getStudents()) {
+                StudentEntity student = studentDao.findById(studentId).get();
+                checkConditionsForStudent(trainingEntity, student);
+                students.add(student);
+                if (!checkTrainersAndStudents(trainingEntity)) {
+                    students.remove(student);
+                    throw new ParticipationInCourseException();
+                }
+
+            }
+
+            trainingEntity.setStudents(students);
+            trainingEntity.setTrainers(trainers);
+            trainingEntity = trainingDao.save(trainingEntity);
+            return TrainingMapper.toTO(trainingEntity);
         }
-
-        List<TrainerEntity> trainers = new ArrayList<>();
-        for (Long trainerId : training.getTrainers()) {
-            TrainerEntity trainer = trainerDao.findById(trainerId).get();
-            trainers.add(trainer);
-        }
-
-        trainingEntity.setStudents(students);
-        trainingEntity.setTrainers(trainers);
-        trainingEntity = trainingDao.save(trainingEntity);
-        return TrainingMapper.toTO(trainingEntity);
-
+        throw new NotFoundException("Training isn't exist");
     }
 
     @Override
     public TrainingTO findTraining(long id) {
-        TrainingEntity trainingEntity = trainingDao.findById(id).get();
-
-        return TrainingMapper.toTO(trainingEntity);
+        Optional<TrainingEntity> trainingEntity =  trainingDao.findById(id);
+        return trainingEntity.map(TrainingMapper::toTO).orElse(null);
     }
 
     @Override
@@ -137,58 +171,69 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
 
-
-
     @Override
     @Transactional(readOnly = false)
-    public TrainingTO addTrainerToTraining(TrainingTO training, TrainerTO trainer) throws ParticipationInCourseException {
-        TrainerEntity trainerEntity = trainerDao.findById(trainer.getId()).get();
-
+    public TrainingTO addTrainerToTraining(TrainingTO training, long trainerId) throws ParticipationInCourseException {
+        TrainerEntity trainerEntity = trainerDao.findById(trainerId).get();
         if (trainerEntity.getId() != null) {
-            TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
+            TrainingEntity trainingEntity;
+            if (training.getId() != null) {
+                trainingEntity = trainingDao.findById(training.getId()).get();
+            } else {
+                trainingEntity = TrainingMapper.toEntity(training);
+            }
 
             trainingEntity.getTrainers().add(trainerEntity);
-            if (trainingEntity.getStudents().size() > 0) {
-                if (employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(), trainingEntity.getStudents())) {
-                    trainingEntity.getTrainers().remove(trainerEntity);
-                    throw new ParticipationInCourseException();
-                }
+            if(!checkTrainersAndStudents(trainingEntity)){
+                trainingEntity.getTrainers().remove(trainerEntity);
+                throw new ParticipationInCourseException();
             }
-
-
             return TrainingMapper.toTO(trainingDao.save(trainingEntity));
         }
         return training;
+    }
+    private boolean checkTrainersAndStudents(TrainingEntity trainingEntity){
+        if (trainingEntity.getStudents().size() > 0) {
+            if (employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(), trainingEntity.getStudents())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     @Transactional(readOnly = false)
-    public TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
-        StudentEntity studentEntity = studentDao.findById(student.getId()).get();
+    public TrainingTO addStudentToTraining(TrainingTO training, long studentId) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
+        StudentEntity studentEntity = studentDao.findById(studentId).get();
 
         if (studentEntity.getId() != null) {
-            TrainingEntity trainingEntity = trainingDao.findById(training.getId()).get();
+            TrainingEntity trainingEntity;
+            if (training.getId() != null) {
+                trainingEntity = trainingDao.findById(training.getId()).get();
+            } else {
+                trainingEntity = TrainingMapper.toEntity(training);
+            }
 
-            double sum = sumAllCostForStudentInThisYear(studentEntity.getId());
-            sum += training.getAmount();
-            int countTraining = countAllTrainingForStudentInThisYear(studentEntity.getId());
-
-            checkCorrectSum(sum, studentEntity.getGrade(), countTraining + 1);
+            checkConditionsForStudent(trainingEntity, studentEntity);
 
             trainingEntity.getStudents().add(studentEntity);
-            if (trainingEntity.getTrainers().size() > 0) {
-                if (employeeService.compareTrainersAndStudents(trainingEntity.getTrainers(), trainingEntity.getStudents())) {
-                    trainingEntity.getStudents().remove(studentEntity);
-                    throw new ParticipationInCourseException();
-                }
+            if(!checkTrainersAndStudents(trainingEntity)){
+                trainingEntity.getStudents().remove(studentEntity);
+                throw new ParticipationInCourseException();
             }
+
 
             return TrainingMapper.toTO(trainingDao.save(trainingEntity));
         }
-
         return training;
-    }
 
+    }
+    private void checkConditionsForStudent(TrainingEntity trainingEntity, StudentEntity studentEntity) throws TooLargeTotalAmountException, TooMuchTrainingException {
+        double sum = sumAllCostForStudentInThisYear(studentEntity.getId());
+        sum += trainingEntity.getAmount();
+        int countTraining = countAllTrainingForStudentInThisYear(studentEntity.getId());
+        checkCorrectSum(sum, studentEntity.getGrade(), countTraining + 1);
+    }
 
     @Override
     public double sumAllCostForStudent(long studentId) {
@@ -244,15 +289,15 @@ public class TrainingServiceImpl implements TrainingService {
         }
     }
 
-    private String setStartDateThisYear(){
+    private String setStartDateThisYear() {
         int year = LocalDate.now().getYear();
-        LocalDate date = LocalDate.of(year, 1,1);
+        LocalDate date = LocalDate.of(year, 1, 1);
         return date.toString();
     }
 
-    private String setEndDateThisYear(){
+    private String setEndDateThisYear() {
         int year = LocalDate.now().getYear();
-        LocalDate date = LocalDate.of(year, 12,31);
+        LocalDate date = LocalDate.of(year, 12, 31);
         return date.toString();
     }
 }

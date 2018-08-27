@@ -1,5 +1,6 @@
 package com.capgemini.dao;
 
+import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
 import com.capgemini.domain.TrainingEntity;
@@ -12,22 +13,24 @@ import java.util.List;
 
 public interface TrainingDao extends CrudRepository<TrainingEntity, Long>, TrainingQueryDao {
 
-     List<TrainingEntity> findAll();
+    List<TrainingEntity> findAll();
 
-     List<TrainerEntity> findTrainersById(long id);
+    List<TrainerEntity> findTrainersById(long id);
 
-     List<TrainingEntity> findByStudentsContains(StudentEntity student);
+    List<TrainingEntity> findByStudentsContains(StudentEntity student);
+
+    List<TrainingEntity> findByTrainersContains(TrainerEntity trainer);
 
 
     @Query("select COALESCE(sum(t.amount),0) from TrainingEntity t join t.students s on s.id = :student  ")
-     double sumCostAllTrainingForStudent(@Param("student") long id );
+    double sumCostAllTrainingForStudent(@Param("student") long id);
 
     @Query("select COALESCE(sum(t.amount),0) from TrainingEntity t join t.students s on s.id = :student  "
-            +" where t.dateFrom between :dtFrom and :dtTo")
+            + " where t.dateFrom between :dtFrom and :dtTo")
     double sumCostAllTrainingForStudentPerYear(@Param("student") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo);
 
     @Query("select count(t.id) from TrainingEntity t join t.students s on s.id = :student "
-            +  " where t.dateFrom between :dtFrom and :dtTo ")
+            + " where t.dateFrom between :dtFrom and :dtTo ")
     int countAllTrainingForStudentPerYear(@Param("student") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo);
 
     @Query("select count(t.id) from TrainingEntity t " +
@@ -42,6 +45,8 @@ public interface TrainingDao extends CrudRepository<TrainingEntity, Long>, Train
 
 
     @Query("select sum(te.duration) from TrainingEntity te join te.trainers t on t.id = :trainer "
-            +  " where te.dateFrom between :dtFrom and :dtTo ")
-    int sumHoursAllTrainingForTrainerPerYear(@Param("trainer") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo );
+            + " where te.dateFrom between :dtFrom and :dtTo ")
+    int sumHoursAllTrainingForTrainerPerYear(@Param("trainer") long id, @Param("dtFrom") Date dtFrom, @Param("dtTo") Date dtTo);
+
+
 }

@@ -6,6 +6,7 @@ import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HelpMethods {
 
@@ -47,6 +48,25 @@ public class HelpMethods {
                 .withDateTo(dtTo)
                 .withKeyWords(keys)
                 .withAmount(amount)
+                .build();
+    }
+    public static TrainingTO createTraining(String title, String type, String kind, int duration,
+                                            String dtFrom, String dtTo, List<String> keys, double amount,
+                                            List<TrainerTO> trainers, List<StudentTO> students) {
+        List<Long> trainersId = trainers.stream().map(p -> p.getId()).collect(Collectors.toList());
+        List<Long> studentsId = students.stream().map(p -> p.getId()).collect(Collectors.toList());
+
+        return new TrainingTO.TrainingTOBuilder()
+                .withTitle(title)
+                .withType(type)
+                .withKind(kind)
+                .withDuration(duration)
+                .withDateFrom(dtFrom)
+                .withDateTo(dtTo)
+                .withKeyWords(keys)
+                .withAmount(amount)
+                .withTrainers(trainersId)
+                .withStudents(studentsId)
                 .build();
     }
 }

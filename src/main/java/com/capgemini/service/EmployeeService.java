@@ -9,6 +9,7 @@ import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingTO;
+import javassist.NotFoundException;
 
 import java.util.List;
 
@@ -16,7 +17,9 @@ public interface EmployeeService {
 
     EmployeeTO addEmployee(EmployeeTO employee);
 
-    EmployeeTO updateEmployee(EmployeeTO employee);
+    void delEmployee(long id) throws NotFoundException;
+
+    EmployeeTO updateEmployee(EmployeeTO employee) throws NotFoundException;
 
     TrainerTO addInternalTrainer(EmployeeTO employee) throws ProblemWithAddTrener;
 
@@ -26,7 +29,13 @@ public interface EmployeeService {
 
     EmployeeTO findEmployee(long id);
 
-    EmployeeEntity findEmployeeByStudent(long student_id);
+    StudentTO findStudent(long studentId);
+
+    TrainerTO findTrainer(long trainerId);
+
+    EmployeeTO findEmployeeByStudent(long studentId);
+
+    EmployeeTO findEmployeeByTrainer(long trainerId);
 
     boolean compareTrainersAndStudents(List<TrainerEntity> trainers, List<StudentEntity> students);
 }

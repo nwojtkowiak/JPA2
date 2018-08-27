@@ -1,8 +1,11 @@
 package com.capgemini.service;
 
 import com.capgemini.exceptions.*;
-import com.capgemini.types.*;
-import com.capgemini.types.TrainingSearchCriteriaTO.TrainingSearchCriteriaTOBuilder;
+import com.capgemini.types.EmployeeTO;
+import com.capgemini.types.StudentTO;
+import com.capgemini.types.TrainerTO;
+import com.capgemini.types.TrainingTO;
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +21,7 @@ import java.util.List;
 import static com.capgemini.service.HelpMethods.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = "spring.profiles.active=hsql")
@@ -33,7 +37,7 @@ public class TrainingServiceTest {
 
     @Before
     @Transactional
-    public void init() {
+    public void init() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
 
         List<String> keys = new ArrayList<>();
         keys.add("spring");
@@ -47,12 +51,11 @@ public class TrainingServiceTest {
 
         EmployeeTO employeeTO = createEmployee("Test", "Testowy", "manager");
         employeeService.addEmployee(employeeTO);
-
     }
 
     @Test
     @Transactional
-    public void testShouldReturnSize1AfterAddTraining() {
+    public void testShouldReturnSize1AfterAddTraining() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
         //given
         List<String> keys = new ArrayList<>();
         keys.add("sql");
@@ -79,7 +82,7 @@ public class TrainingServiceTest {
         TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO);
 
         //when
-        trainingService.addTrainerToTraining(initTrainingTO, trainerTO);
+        trainingService.addTrainerToTraining(initTrainingTO, trainerTO.getId());
 
         //then
         List<TrainerTO> trainers = trainingService.findTrainers(initTrainingTO);
@@ -90,40 +93,39 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn1TrenerAnd3Students() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldReturn1TrainerAnd3Students() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO1 = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO1 = employeeService.addEmployee(employeeTO1);
 
         TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
-        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO);
+        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO.getId());
 
         EmployeeTO employeeTO2 = createEmployee("Ania", "Studentowa", "programmer");
         employeeTO2 = employeeService.addEmployee(employeeTO2);
         StudentTO studentTO2 = employeeService.addStudent(employeeTO2, 1, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO2);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO2.getId());
 
         TrainerTO trainerTO2 = createTrainer("Ania", "Treningowa2", "manager", "COMPANY");
         trainerTO2 = employeeService.addExternalTrainer(trainerTO2);
-        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO2);
+        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO2.getId());
 
         EmployeeTO employeeTO3 = createEmployee("Ania", "Studentowa3", "programmer");
         employeeTO3 = employeeService.addEmployee(employeeTO3);
 
         StudentTO studentTO3 = employeeService.addStudent(employeeTO3, 2, employeeTO2);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO3);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO3.getId());
 
         EmployeeTO employeeTO4 = createEmployee("Ania", "Studentowa4", "programmer");
         employeeTO4 = employeeService.addEmployee(employeeTO4);
 
         StudentTO studentTO4 = employeeService.addStudent(employeeTO4, 5, employeeTO1);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO4);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO4.getId());
 
         //when
         List<TrainerTO> trainers = trainingService.findTrainers(initTrainingTO);
         List<StudentTO> students = trainingService.findStudents(initTrainingTO);
-
 
         //then
         assertNotNull(trainers);
@@ -134,14 +136,14 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn12000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldReturn12000ForStudent() throws ParticipationInCourseException, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO = employeeService.addEmployee(employeeTO);
 
         StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
         List<String> keys = new ArrayList<>();
         keys.add("sql");
@@ -151,11 +153,11 @@ public class TrainingServiceTest {
                 "2017-10-01", "2017-10-01", keys, 10000.0);
         //when
         TrainingTO secondTraining = trainingService.addTraining(trainingTO);
-        trainingService.addStudentToTraining(secondTraining, studentTO);
+        trainingService.addStudentToTraining(secondTraining, studentTO.getId());
 
         //when
         Double sum = trainingService.sumAllCostForStudent(studentTO.getId());
-        Double expected = new Double(12000.0);
+        Double expected = 12000.0;
 
         //then
         assertNotNull(sum);
@@ -164,14 +166,14 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn2000ForStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldReturn2000ForStudent() throws ParticipationInCourseException, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO = employeeService.addEmployee(employeeTO);
 
         StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
         List<String> keys = new ArrayList<>();
         keys.add("sql");
@@ -181,11 +183,11 @@ public class TrainingServiceTest {
                 "2017-10-01", "2017-10-01", keys, 10000.0);
         //when
         TrainingTO secondTraining = trainingService.addTraining(trainingTO);
-        trainingService.addStudentToTraining(secondTraining, studentTO);
+        trainingService.addStudentToTraining(secondTraining, studentTO.getId());
 
         //when
         Double sum = trainingService.sumAllCostForStudentInThisYear(studentTO.getId());
-        Double expected = new Double(2000.0);
+        Double expected = 2000.0;
 
         //then
         assertNotNull(sum);
@@ -195,14 +197,14 @@ public class TrainingServiceTest {
 
     @Test(expected = TooLargeTotalAmountException.class)
     @Transactional
-    public void testShouldReturnTooLargeTotalAmountException() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldReturnTooLargeTotalAmountException() throws ParticipationInCourseException, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO = employeeService.addEmployee(employeeTO);
 
         StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
         List<String> keys = new ArrayList<>();
         keys.add("sql");
@@ -212,21 +214,19 @@ public class TrainingServiceTest {
                 "2018-10-01", "2018-10-01", keys, 14000.0);
         //when
         TrainingTO secondTraining = trainingService.addTraining(trainingTO);
-        trainingService.addStudentToTraining(secondTraining, studentTO);
-
-
+        trainingService.addStudentToTraining(secondTraining, studentTO.getId());
     }
 
     @Test(expected = TooMuchTrainingException.class)
     @Transactional
-    public void testShouldReturnTooMuchTrainingException() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldReturnTooMuchTrainingException() throws ParticipationInCourseException, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO = employeeService.addEmployee(employeeTO);
 
         StudentTO studentTO = employeeService.addStudent(employeeTO, 1, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
         List<String> keys = new ArrayList<>();
         keys.add("sql");
@@ -235,7 +235,7 @@ public class TrainingServiceTest {
         TrainingTO trainingTO2 = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-01", "2018-10-01", keys, 2000.0);
         TrainingTO secondTraining = trainingService.addTraining(trainingTO2);
-        trainingService.addStudentToTraining(secondTraining, studentTO);
+        trainingService.addStudentToTraining(secondTraining, studentTO.getId());
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -244,7 +244,7 @@ public class TrainingServiceTest {
         TrainingTO trainingTO3 = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-01", "2018-10-01", keys, 2000.0);
         TrainingTO thirdTraining = trainingService.addTraining(trainingTO3);
-        trainingService.addStudentToTraining(thirdTraining, studentTO);
+        trainingService.addStudentToTraining(thirdTraining, studentTO.getId());
 
         keys = new ArrayList<>();
         keys.add("c++");
@@ -254,10 +254,7 @@ public class TrainingServiceTest {
         TrainingTO fourthTraining = trainingService.addTraining(trainingTO4);
 
         //when
-
-        trainingService.addStudentToTraining(fourthTraining, studentTO);
-
-
+        trainingService.addStudentToTraining(fourthTraining, studentTO.getId());
     }
 
 
@@ -266,16 +263,14 @@ public class TrainingServiceTest {
     public void testShouldReturnParticipationInCourseExceptionWhenTrainer() throws ParticipationInCourseException, ProblemWithAddStudent, ProblemWithAddTrener, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
-        EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
-        employeeTO1 = employeeService.addEmployee(employeeTO1);
+        EmployeeTO employeeTO = createEmployee("Ania", "Testowa1", "programmer");
+        employeeTO = employeeService.addEmployee(employeeTO);
 
-        StudentTO studentTO1 = employeeService.addStudent(employeeTO1, 2, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO1);
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 2, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
-        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
-        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO);
-
-
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO);
+        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO.getId());
     }
 
     @Test(expected = ParticipationInCourseException.class)
@@ -283,34 +278,29 @@ public class TrainingServiceTest {
     public void testShouldReturnParticipationInCourseExceptionWhenStudent() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
-        EmployeeTO employeeTO1 = createEmployee("Ania", "Testowa1", "programmer");
-        employeeTO1 = employeeService.addEmployee(employeeTO1);
+        EmployeeTO employeeTO = createEmployee("Ania", "Testowa1", "programmer");
+        employeeTO = employeeService.addEmployee(employeeTO);
 
-        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
-        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO);
+        initTrainingTO = trainingService.addTrainerToTraining(initTrainingTO, trainerTO.getId());
 
-        StudentTO studentTO1 = employeeService.addStudent(employeeTO1, 2, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO1);
-
-
+        StudentTO studentTO = employeeService.addStudent(employeeTO, 2, null);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
     }
 
     @Test
     @Transactional
-    public void testNotShouldReturnTooMuchTrainingException() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testNotShouldReturnTooMuchTrainingException() throws ParticipationInCourseException, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
         employeeTO = employeeService.addEmployee(employeeTO);
 
         StudentTO studentTO = employeeService.addStudent(employeeTO, 4, null);
-        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO);
+        initTrainingTO = trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
 
         //when
-
-        trainingService.addStudentToTraining(initTrainingTO, studentTO);
-
-
+        trainingService.addStudentToTraining(initTrainingTO, studentTO.getId());
     }
 
     @Test(expected = TooLargeTotalAmountException.class)
@@ -330,16 +320,14 @@ public class TrainingServiceTest {
                 "2018-10-01", "2018-10-01", keys, 55100.0);
         trainingTO = trainingService.addTraining(trainingTO);
 
-
         //when
-        trainingService.addStudentToTraining(trainingTO, studentTO);
-
+        trainingService.addStudentToTraining(trainingTO, studentTO.getId());
 
     }
 
     @Test
     @Transactional
-    public void testShouldListTrainingWithSql() throws ParticipationInCourseException, ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, TooMuchTrainingException {
+    public void testShouldListTrainingWithSql() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
 
         //given
         List<String> keys = new ArrayList<>();
@@ -372,7 +360,7 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn40hours() throws ProblemWithAddTrener, ParticipationInCourseException {
+    public void testShouldReturn40hours() throws ProblemWithAddTrener, ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException {
 
         //given
         EmployeeTO employeeTO = createEmployee("Ania", "Treningowa1", "manager");
@@ -387,7 +375,7 @@ public class TrainingServiceTest {
         TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2017-10-01", "2017-10-01", keys, 2000.0);
         secondTraining = trainingService.addTraining(secondTraining);
-        trainingService.addTrainerToTraining(secondTraining, trainerTO);
+        trainingService.addTrainerToTraining(secondTraining, trainerTO.getId());
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -396,7 +384,7 @@ public class TrainingServiceTest {
         TrainingTO thirdTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-01", "2018-10-01", keys, 2000.0);
         thirdTraining = trainingService.addTraining(thirdTraining);
-        trainingService.addTrainerToTraining(thirdTraining, trainerTO);
+        trainingService.addTrainerToTraining(thirdTraining, trainerTO.getId());
 
         keys = new ArrayList<>();
         keys.add("c++");
@@ -404,7 +392,7 @@ public class TrainingServiceTest {
         TrainingTO fourthTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-01", "2018-10-01", keys, 2000.0);
         fourthTraining = trainingService.addTraining(fourthTraining);
-        trainingService.addTrainerToTraining(fourthTraining, trainerTO);
+        trainingService.addTrainerToTraining(fourthTraining, trainerTO.getId());
 
         //when
         int countHours = trainingService.sumHoursAllTrainingForTrainerInThisYear(trainerTO.getId());
@@ -431,7 +419,7 @@ public class TrainingServiceTest {
         TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-10", "2018-10-20", keys, 2000.0);
         secondTraining = trainingService.addTraining(secondTraining);
-        trainingService.addTrainerToTraining(secondTraining, trainerTO);
+        trainingService.addTrainerToTraining(secondTraining, trainerTO.getId());
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -440,7 +428,7 @@ public class TrainingServiceTest {
         TrainingTO thirdTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-01", "2018-10-10", keys, 2000.0);
         thirdTraining = trainingService.addTraining(thirdTraining);
-        trainingService.addStudentToTraining(thirdTraining, studentTO);
+        trainingService.addStudentToTraining(thirdTraining, studentTO.getId());
 
         keys = new ArrayList<>();
         keys.add("c++");
@@ -448,7 +436,7 @@ public class TrainingServiceTest {
         TrainingTO fourthTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-20", "2018-10-22", keys, 2000.0);
         fourthTraining = trainingService.addTraining(fourthTraining);
-        trainingService.addTrainerToTraining(fourthTraining, trainerTO);
+        trainingService.addTrainerToTraining(fourthTraining, trainerTO.getId());
 
         //when
         int countTrainings = trainingService.countAllTrainingForEmployeeInPeriod(employeeTO.getId(),
@@ -458,362 +446,7 @@ public class TrainingServiceTest {
         assertEquals(3, countTrainings);
     }
 
-    @Test
-    @Transactional
-    public void testShouldReturn4TrainingWithEmptySearchCriteria() {
 
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .build();
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(4, trainings.size());
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn4TrainingWithTitleSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "internal", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "internal", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withTitle("for beginners")
-                .build();
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(4, trainings.size());
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn2TrainingWithTypeSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withTitle("for beginners")
-                .withType("internal")
-                .build();
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(2, trainings.size());
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn1TrainingWithKindSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        keys = new ArrayList<>();
-        keys.add("speech");
-
-        TrainingTO fifthTraining = createTraining("Speech for beginners", "external", "soft", 20,
-                "2019-10-20", "2019-10-22", keys, 5000.0);
-        trainingService.addTraining(fifthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withKind("soft")
-                .build();
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(1, trainings.size());
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn1TrainingWithDateSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        keys = new ArrayList<>();
-        keys.add("speech");
-
-        TrainingTO fifthTraining = createTraining("Speech for beginners", "external", "soft", 20,
-                "2019-10-20", "2019-10-22", keys, 5000.0);
-        trainingService.addTraining(fifthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withDate(Date.valueOf("2019-10-21"))
-                .build();
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn2TrainingWithAmountFromSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 7000.0);
-        trainingService.addTraining(fourthTraining);
-
-        keys = new ArrayList<>();
-        keys.add("speech");
-
-        TrainingTO fifthTraining = createTraining("Speech for beginners", "external", "soft", 20,
-                "2019-10-20", "2019-10-22", keys, 5000.0);
-        trainingService.addTraining(fifthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withAmountFrom(5000.0)
-                .build();
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(2, trainings.size());
-
-    }
-
-    @Test
-    @Transactional
-    public void testShouldReturn1TrainingWithAmountFromAdnToSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 2000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 2000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 7000.0);
-        trainingService.addTraining(fourthTraining);
-
-        keys = new ArrayList<>();
-        keys.add("speech");
-
-        TrainingTO fifthTraining = createTraining("Speech for beginners", "external", "soft", 20,
-                "2019-10-20", "2019-10-22", keys, 5000.0);
-        trainingService.addTraining(fifthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-
-                .withAmountFrom(5000.0)
-                .withAmountTo(6000.0)
-                .build();
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(1, trainings.size());
-    }
-
-
-    @Test
-    @Transactional
-    public void testShouldReturn2TrainingWithAllSearchCriteria() {
-
-        //give
-        List<String> keys = new ArrayList<>();
-        keys.add("sql");
-        keys.add("oracle");
-
-        TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
-                "2018-10-10", "2018-10-20", keys, 3000.0);
-        trainingService.addTraining(secondTraining);
-
-        keys = new ArrayList<>();
-        keys.add("html");
-        keys.add("css");
-
-        TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 20,
-                "2018-10-01", "2018-10-10", keys, 3000.0);
-        trainingService.addTraining(thirdTraining);
-
-        keys = new ArrayList<>();
-        keys.add("c++");
-
-        TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 20,
-                "2018-10-20", "2018-10-22", keys, 2000.0);
-        trainingService.addTraining(fourthTraining);
-
-        TrainingSearchCriteriaTO criteria = new TrainingSearchCriteriaTOBuilder()
-                .withTitle("for beginners")
-                .withType("internal")
-                .withKind("technical")
-                .withDate(Date.valueOf("2018-10-20"))
-                .withAmountFrom(2000.0)
-                .withAmountTo(4000.0)
-                .build();
-
-
-        //when
-        List<TrainingTO> trainings = trainingService.findTrainingsBySearchCriteria(criteria);
-
-        //then
-        assertNotNull(trainings);
-        assertEquals(1, trainings.size());
-
-
-    }
 
     @Test
     @Transactional
@@ -843,7 +476,7 @@ public class TrainingServiceTest {
         TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-10", "2018-10-20", keys, 3000.0);
         secondTraining = trainingService.addTraining(secondTraining);
-        trainingService.addStudentToTraining(secondTraining, studentTO1);
+        trainingService.addStudentToTraining(secondTraining, studentTO1.getId());
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -852,8 +485,8 @@ public class TrainingServiceTest {
         TrainingTO thirdTraining = createTraining("html for beginners", "external", "technical", 50,
                 "2018-10-01", "2018-10-10", keys, 3000.0);
         thirdTraining = trainingService.addTraining(thirdTraining);
-        trainingService.addStudentToTraining(thirdTraining, studentTO2);
-        trainingService.addStudentToTraining(thirdTraining, studentTO3);
+        trainingService.addStudentToTraining(thirdTraining, studentTO2.getId());
+        trainingService.addStudentToTraining(thirdTraining, studentTO3.getId());
 
         keys = new ArrayList<>();
         keys.add("c++");
@@ -861,9 +494,9 @@ public class TrainingServiceTest {
         TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 10,
                 "2018-10-20", "2018-10-22", keys, 2000.0);
         fourthTraining = trainingService.addTraining(fourthTraining);
-        trainingService.addStudentToTraining(fourthTraining, studentTO2);
-        trainingService.addStudentToTraining(fourthTraining, studentTO3);
-        trainingService.addStudentToTraining(fourthTraining, studentTO4);
+        trainingService.addStudentToTraining(fourthTraining, studentTO2.getId());
+        trainingService.addStudentToTraining(fourthTraining, studentTO3.getId());
+        trainingService.addStudentToTraining(fourthTraining, studentTO4.getId());
 
 
         //when
@@ -880,7 +513,7 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn1TrainingWithMostEdition() {
+    public void testShouldReturn1TrainingWithMostEdition() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
 
         //give
         List<String> keys = new ArrayList<>();
@@ -889,7 +522,7 @@ public class TrainingServiceTest {
 
         TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-10", "2018-10-20", keys, 3000.0);
-        secondTraining = trainingService.addTraining(secondTraining);
+        trainingService.addTraining(secondTraining);
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -897,14 +530,14 @@ public class TrainingServiceTest {
 
         TrainingTO thirdTraining = createTraining("SQL for beginners", "external", "technical", 50,
                 "2020-10-01", "2018-10-20", keys, 3000.0);
-        thirdTraining = trainingService.addTraining(thirdTraining);
+        trainingService.addTraining(thirdTraining);
 
         keys = new ArrayList<>();
         keys.add("c++");
 
         TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 10,
                 "2020-10-20", "2020-10-22", keys, 2000.0);
-        fourthTraining = trainingService.addTraining(fourthTraining);
+        trainingService.addTraining(fourthTraining);
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -912,7 +545,7 @@ public class TrainingServiceTest {
 
         TrainingTO fifthTraining = createTraining("SQL for beginners", "external", "technical", 50,
                 "2019-10-01", "2019-10-10", keys, 3000.0);
-        fifthTraining = trainingService.addTraining(fifthTraining);
+        trainingService.addTraining(fifthTraining);
 
         //when
         List<TrainingTO> trainings = trainingService.findTrainingsWithMostEdition();
@@ -925,7 +558,7 @@ public class TrainingServiceTest {
 
     @Test
     @Transactional
-    public void testShouldReturn2TrainingWithMostEdition()  {
+    public void testShouldReturn2TrainingWithMostEdition() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
 
         //give
         List<String> keys = new ArrayList<>();
@@ -934,7 +567,7 @@ public class TrainingServiceTest {
 
         TrainingTO secondTraining = createTraining("SQL for beginners", "internal", "technical", 20,
                 "2018-10-10", "2018-10-20", keys, 3000.0);
-        secondTraining = trainingService.addTraining(secondTraining);
+        trainingService.addTraining(secondTraining);
 
         keys = new ArrayList<>();
         keys.add("html");
@@ -942,23 +575,21 @@ public class TrainingServiceTest {
 
         TrainingTO thirdTraining = createTraining("SQL for beginners", "external", "technical", 50,
                 "2020-10-01", "2018-10-20", keys, 3000.0);
-        thirdTraining = trainingService.addTraining(thirdTraining);
-
-
+        trainingService.addTraining(thirdTraining);
 
         keys = new ArrayList<>();
         keys.add("c++");
 
         TrainingTO fourthTraining = createTraining("C++ for beginners", "external", "technical", 50,
                 "2019-10-01", "2019-10-10", keys, 3000.0);
-        fourthTraining = trainingService.addTraining(fourthTraining);
+        trainingService.addTraining(fourthTraining);
 
         keys = new ArrayList<>();
         keys.add("c++");
 
         TrainingTO fifthTraining = createTraining("C++ for beginners", "external", "technical", 10,
                 "2020-10-20", "2020-10-22", keys, 2000.0);
-        fifthTraining = trainingService.addTraining(fifthTraining);
+        trainingService.addTraining(fifthTraining);
 
         //when
         List<TrainingTO> trainings = trainingService.findTrainingsWithMostEdition();
@@ -970,9 +601,142 @@ public class TrainingServiceTest {
         assertEquals(Date.valueOf("2018-10-10"), trainings.get(0).getDateFrom());
         assertEquals("C++ for beginners", trainings.get(1).getTitle());
         assertEquals(Date.valueOf("2019-10-01"), trainings.get(1).getDateFrom());
+    }
 
+    @Test
+    @Transactional
+    public void testShouldReturn1TrainerWithStudentsAndTrainersAfterAdd() throws ProblemWithAddTrener, ProblemWithAddStudent, TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException {
+
+        //given
+        List<StudentTO> students = new ArrayList<>();
+        List<TrainerTO> trainers = new ArrayList<>();
+
+        EmployeeTO employeeTO1 = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO1 = employeeService.addEmployee(employeeTO1);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
+        trainers.add(trainerTO);
+
+        EmployeeTO employeeTO2 = createEmployee("Ania", "Studentowa", "programmer");
+        employeeTO2 = employeeService.addEmployee(employeeTO2);
+        StudentTO studentTO2 = employeeService.addStudent(employeeTO2, 1, null);
+        students.add(studentTO2);
+
+        TrainerTO trainerTO2 = createTrainer("Ania", "Treningowa2", "manager", "COMPANY");
+        trainerTO2 = employeeService.addExternalTrainer(trainerTO2);
+        trainers.add(trainerTO2);
+
+        EmployeeTO employeeTO3 = createEmployee("Ania", "Studentowa3", "programmer");
+        employeeTO3 = employeeService.addEmployee(employeeTO3);
+        StudentTO studentTO3 = employeeService.addStudent(employeeTO3, 2, employeeTO2);
+        students.add(studentTO3);
+
+        EmployeeTO employeeTO4 = createEmployee("Ania", "Studentowa4", "programmer");
+        employeeTO4 = employeeService.addEmployee(employeeTO4);
+        StudentTO studentTO4 = employeeService.addStudent(employeeTO4, 5, employeeTO1);
+        students.add(studentTO4);
+
+        List<String> keys = new ArrayList<>();
+        keys.add("java");
+
+        //when
+        TrainingTO training = createTraining("Spring", "internal",
+                "technical", 20,
+                "2020-05-06","2020-05-08",
+                keys,5000.0, trainers, students );
+        training = trainingService.addTraining(training);
+
+        //then
+        assertNotNull(training);
+        assertEquals(3, training.getStudents().size());
+        assertEquals(2, training.getTrainers().size());
+    }
+
+
+    @Test
+    @Transactional
+    public void testShouldReturnUpdatedTrainingAfterUpdate() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException, NotFoundException {
+
+        //given
+        List<String> keys = new ArrayList<>();
+        keys.add("java");
+        TrainingTO training = createTraining("Spring", "internal",
+                "technical", 20,
+                "2020-05-06","2020-05-08",
+                keys,5000.0);
+        training = trainingService.addTraining(training);
+
+        //when
+        training.setTitle("SPRING TEST");
+        TrainingTO updated = trainingService.updateTraining(training);
+
+        //then
+        assertNotNull(updated);
+        assertEquals("SPRING TEST", updated.getTitle());
+    }
+
+    @Test(expected = NotFoundException.class)
+    @Transactional
+    public void testShouldReturnNotFoundExceptionAfterUpdateNotExist() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException, NotFoundException {
+
+        //given
+        List<String> keys = new ArrayList<>();
+        keys.add("java");
+        TrainingTO training = createTraining("Spring", "internal",
+                "technical", 20,
+                "2020-05-06","2020-05-08",
+                keys,5000.0);
+
+        //when
+        training.setTitle("SPRING TEST");
+        trainingService.updateTraining(training);
 
     }
 
+    @Test
+    @Transactional
+    public void testShouldReturnNullAfterDelete() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException, NotFoundException, ProblemWithAddTrener, ProblemWithAddStudent {
+
+        //given
+        List<String> keys = new ArrayList<>();
+        keys.add("java");
+        TrainingTO training = createTraining("Spring", "internal",
+                "technical", 20,
+                "2020-05-06","2020-05-08",
+                keys,5000.0);
+        TrainingTO saved = trainingService.addTraining(training);
+
+        EmployeeTO employeeTO1 = createEmployee("Ania", "Treningowa1", "manager");
+        employeeTO1 = employeeService.addEmployee(employeeTO1);
+        TrainerTO trainerTO = employeeService.addInternalTrainer(employeeTO1);
+        trainingService.addTrainerToTraining(training, trainerTO.getId());
+
+        EmployeeTO employeeTO2 = createEmployee("Ania", "Studentowa", "programmer");
+        employeeTO2 = employeeService.addEmployee(employeeTO2);
+        StudentTO studentTO = employeeService.addStudent(employeeTO2, 1, null);
+        trainingService.addStudentToTraining(training, studentTO.getId());
+
+        //when
+        trainingService.delTraining(saved.getId());
+
+        //then
+        TrainingTO founded = trainingService.findTraining(saved.getId());
+        EmployeeTO foundedEmployeeStudent = employeeService.findEmployeeByStudent(studentTO.getId());
+        EmployeeTO foundedEmployeeTrainer = employeeService.findEmployeeByTrainer(trainerTO.getId());
+        assertNull(founded);
+        assertNotNull(foundedEmployeeStudent);
+        assertNotNull(foundedEmployeeTrainer);
+    }
+
+    @Test(expected = NotFoundException.class)
+    @Transactional
+    public void testShouldReturnNotFoundExceptionAfterDeleteNotExist() throws NotFoundException {
+
+        //given
+        Long id = 50L;
+
+        //when
+        trainingService.delTraining(id);
+
+    }
 
 }

@@ -29,11 +29,11 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
     private String position;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "trainer_id")
     private TrainerEntity trainer;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "student_id")
     private StudentEntity student;
 

@@ -7,6 +7,7 @@ import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
 import com.capgemini.types.TrainingSearchCriteriaTO;
 import com.capgemini.types.TrainingTO;
+import javassist.NotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.sql.Date;
@@ -14,9 +15,11 @@ import java.util.List;
 
 public interface TrainingService {
 
-    TrainingTO addTraining(TrainingTO training);
+    TrainingTO addTraining(TrainingTO training) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
 
-    TrainingTO updateTraining(TrainingTO training) throws OptimisticLockingFailureException;
+    void delTraining(long id) throws NotFoundException;
+
+    TrainingTO updateTraining(TrainingTO training) throws OptimisticLockingFailureException, TooLargeTotalAmountException, TooMuchTrainingException, ParticipationInCourseException, NotFoundException;
 
     TrainingTO findTraining(long id);
 
@@ -34,9 +37,9 @@ public interface TrainingService {
 
     List<StudentTO> findStudentsWithLongestDuration();
 
-    TrainingTO addTrainerToTraining(TrainingTO training,TrainerTO trainer) throws ParticipationInCourseException;
+    TrainingTO addTrainerToTraining(TrainingTO training,long trainerId) throws ParticipationInCourseException;
 
-    TrainingTO addStudentToTraining(TrainingTO training, StudentTO student) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
+    TrainingTO addStudentToTraining(TrainingTO training, long studentId) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
 
     double sumAllCostForStudent(long studentId);
 

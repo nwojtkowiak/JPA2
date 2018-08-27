@@ -1,6 +1,10 @@
 package com.capgemini.service;
 
+import com.capgemini.exceptions.ParticipationInCourseException;
+import com.capgemini.exceptions.TooLargeTotalAmountException;
+import com.capgemini.exceptions.TooMuchTrainingException;
 import com.capgemini.types.TrainingTO;
+import javassist.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +24,8 @@ public class OptimisticLockingTest {
     @Autowired
     private TrainingService trainingService;
 
-   /* @Test(expected = OptimisticLockingFailureException.class)
-    //@Transactional
-    public void testShouldReturnOptimisticLocking(){
+    @Test(expected = OptimisticLockingFailureException.class)
+    public void testShouldReturnOptimisticLocking() throws TooLargeTotalAmountException, ParticipationInCourseException, TooMuchTrainingException, NotFoundException {
         //given
 
         List<String> keys = new ArrayList<>();
@@ -40,5 +43,5 @@ public class OptimisticLockingTest {
         trainingService.updateTraining(trainingService.updateTraining(saved));
 
 
-    }*/
+    }
 }
