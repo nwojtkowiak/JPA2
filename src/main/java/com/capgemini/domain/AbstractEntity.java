@@ -1,11 +1,6 @@
 package com.capgemini.domain;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Version;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Column;
-
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;

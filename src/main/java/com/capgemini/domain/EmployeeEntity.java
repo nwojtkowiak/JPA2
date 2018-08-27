@@ -5,8 +5,6 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "EMPLOYEE")
@@ -73,18 +71,6 @@ public class EmployeeEntity extends AbstractEntity implements Serializable {
 
     public TrainerEntity getTrainer() {
         return trainer;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
     }
 
     public void setTrainer(TrainerEntity trainer) {

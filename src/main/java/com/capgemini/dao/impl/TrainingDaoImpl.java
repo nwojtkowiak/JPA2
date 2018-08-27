@@ -6,13 +6,8 @@ import com.capgemini.domain.QTrainingEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainingEntity;
 import com.capgemini.types.TrainingSearchCriteriaTO;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
-import javafx.util.Pair;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -21,7 +16,7 @@ import java.util.List;
 
 public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implements TrainingQueryDao {
 
-    public List<StudentEntity> findStudentsWithLongestDuration(){
+    public List<StudentEntity> findStudentsWithLongestDuration() {
         QTrainingEntity training = QTrainingEntity.trainingEntity;
         QStudentEntity student = QStudentEntity.studentEntity;
 
@@ -36,14 +31,14 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
 
         List<StudentEntity> students = queryStudents.select(student).distinct()
                 .from(training).innerJoin(training.students, student)
-               .where(student.id.in(JPAExpressions.select(student.id).from(training).innerJoin(training.students,student)
+                .where(student.id.in(JPAExpressions.select(student.id).from(training).innerJoin(training.students, student)
                         .groupBy(student.id).having(training.duration.sum().eq(maxDuration))))
                 .fetch();
 
-       return students;
+        return students;
     }
 
-    public List<TrainingEntity> findTrainingWithMostEditions(){
+    public List<TrainingEntity> findTrainingWithMostEditions() {
         QTrainingEntity training = QTrainingEntity.trainingEntity;
 
 
@@ -82,7 +77,7 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
     }
 
     @Override
-        public List<TrainingEntity> findTrainingsByCriteria(TrainingSearchCriteriaTO searchCriteria) {
+    public List<TrainingEntity> findTrainingsByCriteria(TrainingSearchCriteriaTO searchCriteria) {
         TypedQuery<TrainingEntity> queryTraining;
 
 
@@ -102,7 +97,7 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
         }
 
         if (searchCriteria.getType() != null) {
-            if(title){
+            if (title) {
                 builderWhere.append(" and ");
             }
             builderWhere.append(" t.type = :type");
@@ -110,7 +105,7 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
 
         }
         if (searchCriteria.getKind() != null) {
-            if(title || type){
+            if (title || type) {
                 builderWhere.append(" and ");
             }
             builderWhere.append(" t.kind = :kind");
@@ -118,7 +113,7 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
         }
 
         if (searchCriteria.getDate() != null) {
-            if(title || type || kind){
+            if (title || type || kind) {
                 builderWhere.append(" and ");
             }
             builderWhere.append(" :date between t.dateFrom and t.dateTo");
@@ -127,7 +122,7 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
 
 
         if (searchCriteria.getAmountFrom() != null) {
-            if(title || type || kind || date ){
+            if (title || type || kind || date) {
                 builderWhere.append(" and ");
             }
             builderWhere.append(" t.amount >= :amountFrom");
@@ -135,22 +130,22 @@ public class TrainingDaoImpl extends AbstractDao<TrainingEntity, Long> implement
         }
 
         if (searchCriteria.getAmountTo() != null) {
-            if(title || type || kind || date || amountFrom){
+            if (title || type || kind || date || amountFrom) {
                 builderWhere.append(" and ");
             }
             builderWhere.append(" t.amount <= :amountTo");
             amountTo = true;
         }
 
-        if(builderWhere.length() > 0){
+        if (builderWhere.length() > 0) {
             builderWhere.insert(0, "where");
         }
         queryTraining = entityManager.createQuery(
-                "select t from TrainingEntity t "  + builderWhere.toString()
+                "select t from TrainingEntity t " + builderWhere.toString()
                 , TrainingEntity.class);
 
         if (title) {
-            queryTraining.setParameter("title", "%" + searchCriteria.getTitle() +"%");
+            queryTraining.setParameter("title", "%" + searchCriteria.getTitle() + "%");
         }
         if (type) {
             queryTraining.setParameter("type", searchCriteria.getType());

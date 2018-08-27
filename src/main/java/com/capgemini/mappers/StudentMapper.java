@@ -15,7 +15,7 @@ public class StudentMapper {
         }
 
         Long bossId = null;
-        if(studentEntity.getBoss() != null){
+        if (studentEntity.getBoss() != null) {
             bossId = studentEntity.getBoss().getId();
         }
 

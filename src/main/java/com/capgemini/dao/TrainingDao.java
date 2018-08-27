@@ -1,6 +1,5 @@
 package com.capgemini.dao;
 
-import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
 import com.capgemini.domain.TrainingEntity;

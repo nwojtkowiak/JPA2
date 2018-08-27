@@ -37,7 +37,7 @@ public interface TrainingService {
 
     List<StudentTO> findStudentsWithLongestDuration();
 
-    TrainingTO addTrainerToTraining(TrainingTO training,long trainerId) throws ParticipationInCourseException;
+    TrainingTO addTrainerToTraining(TrainingTO training, long trainerId) throws ParticipationInCourseException;
 
     TrainingTO addStudentToTraining(TrainingTO training, long studentId) throws ParticipationInCourseException, TooLargeTotalAmountException, TooMuchTrainingException;
 

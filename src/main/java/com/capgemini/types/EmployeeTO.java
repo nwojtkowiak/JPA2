@@ -31,7 +31,9 @@ public class EmployeeTO {
         return lastName;
     }
 
-    public String getPosition() { return position; }
+    public String getPosition() {
+        return position;
+    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -112,8 +114,8 @@ public class EmployeeTO {
 
 
         public EmployeeTO build() {
-            checkBeforeBuild(firstName, lastName,position);
-            return new EmployeeTO(id, firstName, lastName,  position, version );
+            checkBeforeBuild(firstName, lastName, position);
+            return new EmployeeTO(id, firstName, lastName, position, version);
         }
 
         private void checkBeforeBuild(String firstName, String lastName, String position) {

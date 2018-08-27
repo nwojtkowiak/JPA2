@@ -101,14 +101,11 @@ public class TrainingSearchCriteriaTO {
 
 
         public TrainingSearchCriteriaTO build() {
-            return new TrainingSearchCriteriaTO( title, type, kind, date, amountFrom, amountTo);
+            return new TrainingSearchCriteriaTO(title, type, kind, date, amountFrom, amountTo);
         }
 
 
-
     }
-
-
 
 
 }

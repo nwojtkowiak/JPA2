@@ -1,10 +1,7 @@
 package com.capgemini.mappers;
 
-import com.capgemini.domain.StudentEntity;
 import com.capgemini.domain.TrainerEntity;
-import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
-import com.capgemini.types.TrainingTO;
 
 import java.util.ArrayList;
 import java.util.List;

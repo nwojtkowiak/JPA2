@@ -103,8 +103,8 @@ public class TrainerTO {
 
 
         public TrainerTO build() {
-            checkBeforeBuild(firstName, lastName,position);
-            return new TrainerTO(id, firstName, lastName,  position ,companyName, version);
+            checkBeforeBuild(firstName, lastName, position);
+            return new TrainerTO(id, firstName, lastName, position, companyName, version);
         }
 
         private void checkBeforeBuild(String firstName, String lastName, String position) {

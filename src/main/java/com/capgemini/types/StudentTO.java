@@ -13,7 +13,7 @@ public class StudentTO {
     public StudentTO() {
     }
 
-    public StudentTO(Long id,String firstName, String lastName,
+    public StudentTO(Long id, String firstName, String lastName,
                      String position, Long version, Long boss, int grade) {
         this.id = id;
         this.firstName = firstName;
@@ -110,10 +110,9 @@ public class StudentTO {
         }
 
 
-
         public StudentTO build() {
             checkBeforeBuild(firstName, lastName, position);
-            return new StudentTO(id, firstName, lastName,  position, version, boss, grade);
+            return new StudentTO(id, firstName, lastName, position, version, boss, grade);
         }
 
         private void checkBeforeBuild(String firstName, String lastName, String position) {

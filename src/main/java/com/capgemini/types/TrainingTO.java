@@ -17,10 +17,10 @@ public class TrainingTO {
     private List<String> keyWords;
     private List<Long> students;
     private List<Long> trainers;
-   // private long version;
+    // private long version;
 
     public TrainingTO(Long id, String title, String type, String kind, Date dateFrom, Date dateTo,
-                             int duration, List<String> keyWords, double amount,
+                      int duration, List<String> keyWords, double amount,
                       List<Long> students, List<Long> trainers/*, long version*/) {
         this.id = id;
         this.title = title;
@@ -33,7 +33,7 @@ public class TrainingTO {
         this.amount = amount;
         this.students = students;
         this.trainers = trainers;
-      //  this.version = version;
+        //  this.version = version;
     }
 
     public Long getId() {
@@ -144,11 +144,9 @@ public class TrainingTO {
         //private long version;
 
 
-
         public TrainingTOBuilder() {
             super();
         }
-
 
 
         public TrainingTOBuilder withId(Long id) {
@@ -156,43 +154,44 @@ public class TrainingTO {
             return this;
 
         }
-        public TrainingTOBuilder withTitle(String title){
+
+        public TrainingTOBuilder withTitle(String title) {
             this.title = title;
             return this;
         }
 
-        public TrainingTOBuilder withType(String type){
+        public TrainingTOBuilder withType(String type) {
             this.type = type;
             return this;
         }
 
-        public TrainingTOBuilder withKind(String kind){
+        public TrainingTOBuilder withKind(String kind) {
             this.kind = kind;
             return this;
         }
 
-        public TrainingTOBuilder withDateFrom(String date){
+        public TrainingTOBuilder withDateFrom(String date) {
             this.dateFrom = Date.valueOf(date);
             return this;
 
         }
 
-        public TrainingTOBuilder withDateTo(String date){
+        public TrainingTOBuilder withDateTo(String date) {
             this.dateTo = Date.valueOf(date);
             return this;
         }
 
-        public TrainingTOBuilder withDuration(int duration){
+        public TrainingTOBuilder withDuration(int duration) {
             this.duration = duration;
             return this;
         }
 
-        public TrainingTOBuilder withKeyWords(List<String> keys){
+        public TrainingTOBuilder withKeyWords(List<String> keys) {
             this.keyWords = keys;
             return this;
         }
 
-        public TrainingTOBuilder withAmount(double amount){
+        public TrainingTOBuilder withAmount(double amount) {
             this.amount = amount;
             return this;
         }
@@ -214,18 +213,16 @@ public class TrainingTO {
 //        }
 
 
-
         public TrainingTO build() {
             checkBeforeBuild(title, type, kind, dateFrom, dateTo, duration, keyWords, amount);
             return new TrainingTO(id, title, type, kind, dateFrom, dateTo, duration,
-                                    keyWords, amount, students, trainers/*, version*/);
+                    keyWords, amount, students, trainers/*, version*/);
         }
 
         private void checkBeforeBuild(String title, String type, String kind, Date dateFrom, Date dateTo,
-                                      Integer duration, List<String> keyWords, Double amount)
-        {
+                                      Integer duration, List<String> keyWords, Double amount) {
             if (title == null || type == null || kind == null || dateFrom == null || dateTo == null ||
-                    duration == null || keyWords == null || amount == null ) {
+                    duration == null || keyWords == null || amount == null) {
                 throw new RuntimeException("Incorrect training to be created");
             }
 

@@ -9,8 +9,8 @@ import java.util.List;
 
 /*
 
-*/
-public interface EmployeeDao extends CrudRepository<EmployeeEntity, Long>{
+ */
+public interface EmployeeDao extends CrudRepository<EmployeeEntity, Long> {
 
     List<EmployeeEntity> findByTrainerInAndStudentIn(List<TrainerEntity> trainers, List<StudentEntity> students);
 

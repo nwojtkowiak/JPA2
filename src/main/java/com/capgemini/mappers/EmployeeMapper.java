@@ -1,10 +1,9 @@
 package com.capgemini.mappers;
 
 import com.capgemini.domain.EmployeeEntity;
-import com.capgemini.types.*;
+import com.capgemini.types.EmployeeTO;
 import com.capgemini.types.EmployeeTO.EmployeeTOBuilder;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,10 +18,10 @@ public class EmployeeMapper {
 
         Long studentId = null;
         Long trainerId = null;
-        if(employeeEntity.getStudent() != null){
+        if (employeeEntity.getStudent() != null) {
             studentId = employeeEntity.getStudent().getId();
         }
-        if(employeeEntity.getTrainer() != null){
+        if (employeeEntity.getTrainer() != null) {
             trainerId = employeeEntity.getTrainer().getId();
         }
 

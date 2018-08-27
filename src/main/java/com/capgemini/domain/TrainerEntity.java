@@ -5,7 +5,6 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 @Entity
 @Table(name = "TRAINER")
@@ -30,7 +29,7 @@ public class TrainerEntity extends AbstractEntity implements Serializable {
     @Column(nullable = true)
     private String companyName;
 
-    public TrainerEntity(){
+    public TrainerEntity() {
 
     }
 

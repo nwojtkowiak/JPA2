@@ -6,15 +6,12 @@ import com.capgemini.listeners.UpdateListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 @Entity
 @Table(name = "STUDENT")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @EntityListeners({UpdateListener.class, InsertListener.class})
-public class StudentEntity extends AbstractEntity  implements Serializable {
+public class StudentEntity extends AbstractEntity implements Serializable {
 
 
     @Id
