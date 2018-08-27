@@ -50,8 +50,8 @@ public class TrainingSearchCriteriaTO {
         private String type;
         private String kind;
         private Date date;
-        private double amountFrom;
-        private double amountTo;
+        private Double amountFrom;
+        private Double amountTo;
 
 
         public TrainingSearchCriteriaTOBuilder() {
@@ -59,7 +59,7 @@ public class TrainingSearchCriteriaTO {
         }
 
         public TrainingSearchCriteriaTOBuilder(String title, String type, String kind,
-                                               Date date, double amountFrom, double amountTo) {
+                                               Date date, Double amountFrom, Double amountTo) {
             this.title = title;
             this.type = type;
             this.kind = kind;

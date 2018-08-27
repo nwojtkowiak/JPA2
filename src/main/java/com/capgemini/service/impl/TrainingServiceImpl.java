@@ -16,6 +16,7 @@ import com.capgemini.service.EmployeeService;
 import com.capgemini.service.TrainingService;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
+import com.capgemini.types.TrainingSearchCriteriaTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,13 +50,13 @@ public class TrainingServiceImpl implements TrainingService {
 
         List<StudentEntity> students = new ArrayList<>();
         for (Long studentId : training.getStudents()) {
-            StudentEntity student = studentDao.findById(studentId).get();;
+            StudentEntity student = studentDao.findById(studentId).get();
             students.add(student);
         }
 
         List<TrainerEntity> trainers = new ArrayList<>();
         for (Long trainerId : training.getTrainers()) {
-            TrainerEntity trainer = trainerDao.findById(trainerId).get();;
+            TrainerEntity trainer = trainerDao.findById(trainerId).get();
             trainers.add(trainer);
         }
 
@@ -69,8 +69,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional(readOnly = false)
-    public TrainingTO updateTraining(TrainingTO training) //throws OptimisticLockingFailureException
-    {
+    public TrainingTO updateTraining(TrainingTO training){
 
         TrainingEntity trainingEntity = TrainingMapper.toEntity(training);
 
@@ -88,13 +87,8 @@ public class TrainingServiceImpl implements TrainingService {
 
         trainingEntity.setStudents(students);
         trainingEntity.setTrainers(trainers);
-
-        //if(training.getVersion() == trainingEntity.getVersion()) {
         trainingEntity = trainingDao.save(trainingEntity);
         return TrainingMapper.toTO(trainingEntity);
-        //  }
-
-        //   throw new OptimisticLockingFailureException("updateTraining");
 
     }
 
@@ -113,6 +107,21 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     public List<TrainingTO> findTrainingsByKeyWord(String key) {
         return TrainingMapper.map2TOs(trainingDao.findByKeyWordsContains(key));
+    }
+
+    @Override
+    public List<TrainingTO> findTrainingsBySearchCriteria(TrainingSearchCriteriaTO criteria) {
+        return TrainingMapper.map2TOs(trainingDao.findTrainingsByCriteria(criteria));
+    }
+
+    @Override
+    public List<TrainingTO> findTrainingsWithMostEdition() {
+        return TrainingMapper.map2TOs(trainingDao.findTrainingWithMostEditions());
+    }
+
+    @Override
+    public List<StudentTO> findStudentsWithLongestDuration() {
+        return StudentMapper.map2TOs(trainingDao.findStudentsWithLongestDuration());
     }
 
     @Override

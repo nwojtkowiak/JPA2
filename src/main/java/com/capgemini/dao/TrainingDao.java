@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.sql.Date;
 import java.util.List;
 
-public interface TrainingDao extends CrudRepository<TrainingEntity, Long> {
+public interface TrainingDao extends CrudRepository<TrainingEntity, Long>, TrainingQueryDao {
 
      List<TrainingEntity> findAll();
 

@@ -5,6 +5,7 @@ import com.capgemini.exceptions.TooLargeTotalAmountException;
 import com.capgemini.exceptions.TooMuchTrainingException;
 import com.capgemini.types.StudentTO;
 import com.capgemini.types.TrainerTO;
+import com.capgemini.types.TrainingSearchCriteriaTO;
 import com.capgemini.types.TrainingTO;
 import org.springframework.dao.OptimisticLockingFailureException;
 
@@ -26,6 +27,12 @@ public interface TrainingService {
     List<TrainerTO> findTrainers(TrainingTO training);
 
     List<StudentTO> findStudents(TrainingTO training);
+
+    List<TrainingTO> findTrainingsBySearchCriteria(TrainingSearchCriteriaTO criteria);
+
+    List<TrainingTO> findTrainingsWithMostEdition();
+
+    List<StudentTO> findStudentsWithLongestDuration();
 
     TrainingTO addTrainerToTraining(TrainingTO training,TrainerTO trainer) throws ParticipationInCourseException;
 

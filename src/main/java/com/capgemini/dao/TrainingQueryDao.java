@@ -10,5 +10,7 @@ import java.util.List;
 
 public interface TrainingQueryDao  {
 
-     List<TrainingEntity> findTrainingsByCritetia(TrainingSearchCriteriaTO criteria);
+     List<TrainingEntity> findTrainingsByCriteria(TrainingSearchCriteriaTO criteria);
+     List<StudentEntity> findStudentsWithLongestDuration();
+     List<TrainingEntity> findTrainingWithMostEditions();
 }
